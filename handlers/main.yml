@@ -1,0 +1,11 @@
+---
+###############################################################################
+# Wireguard Handlers
+###############################################################################
+
+- name: 'update-initramfs wireguard'
+  ansible.builtin.command: 'update-initramfs -u'
+  notify: 'update-grub wireguard'
+
+- name: 'update-grub wireguard'
+  ansible.builtin.command: 'update-grub'

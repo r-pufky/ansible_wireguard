@@ -1,0 +1,22 @@
+---
+###############################################################################
+# Force Remove Wireguard Adapters & Configurations
+###############################################################################
+
+- name: 'remove | find existing adapter configs'
+  ansible.builtin.find:
+    paths:    '/etc/wireguard'
+    patterns: '*.conf'
+  register: _wireguard_adapter_configs
+
+# If the adapter is not currently running, this will fail. Ignore.
+- name: 'remove | down adapters' # noqa no-changed-when always execute
+  ansible.builtin.command: 'wg-quick down {{ item.path|basename|splitext|first }}'
+  failed_when: false
+  loop: '{{ _wireguard_adapter_configs.files }}'
+
+- name: 'remove | remove adapter configs'
+  ansible.builtin.file:
+    path:  '{{ item.path }}'
+    state: 'absent'
+  loop: '{{ _wireguard_adapter_configs.files }}'

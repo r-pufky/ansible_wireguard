@@ -1,0 +1,28 @@
+---
+###############################################################################
+# Configure Wireguard Adapter
+###############################################################################
+#
+# Args:
+#   adapter: dict wireguard_config_adapter item.
+
+- name: 'adapter | set wireguard adapter {{ adapter.adapter }}'
+  ansible.builtin.template:
+    src:   'adapter.j2'
+    dest:  '/etc/wireguard/{{ adapter.adapter }}.conf'
+    owner: 'root'
+    group: 'root'
+    mode:  0600
+  vars:
+    interface: '{{ adapter.interface }}'
+    peers:     '{{ adapter.peers }}'
+  register: _wireguard_adapter
+  no_log: true # wg private key
+
+# Explicit handler for each generated service.
+- name: 'adapter | start wg-quick@{{ adapter.adapter }}' # noqa no-handler conditional
+  ansible.builtin.service:
+    name:    'wg-quick@{{ adapter.adapter }}'
+    state:   'restarted'
+    enabled: true
+  when: _wireguard_adapter.changed

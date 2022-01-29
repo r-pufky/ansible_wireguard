@@ -1,0 +1,7 @@
+---
+- ansible.builtin.import_tasks: install.yml
+- ansible.builtin.import_tasks: force_remove.yml
+  when: wireguard_force_refresh_adapters
+- ansible.builtin.import_tasks: config.yml
+- ansible.builtin.import_tasks: wireguard_initramfs.yml
+  when: wireguard_initramfs_enable
