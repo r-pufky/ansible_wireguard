@@ -1,0 +1,10 @@
+---
+###############################################################################
+# Default Wireguard Package Dependencies
+###############################################################################
+# Default required packages for Wireguard install.
+
+wireguard_default_packages:
+  - 'wireguard'
+  - 'wireguard-tools'
+  - 'wireguard-dkms'

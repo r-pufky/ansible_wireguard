@@ -1,0 +1,40 @@
+---
+###############################################################################
+# Wireguard Installation for Proxmox (PVE)
+###############################################################################
+# Proxmox 7 (Debian 11 / Bullseye) Released with 5.11 kernel. Only Headers are
+# needed.
+#
+# Reference:
+# * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#add-wireguard-kernel-support
+# * https://nixvsevil.com/posts/wireguard-in-proxmox-lxc/
+
+- name: 'pve | install pve headers'
+  ansible.builtin.apt:
+    name:  'pve-headers'
+    state: 'latest'
+    update_cache: true
+
+- name: 'pve | install wireguard'
+  ansible.builtin.apt:
+    name:  '{{ wireguard_default_packages }}'
+    state: 'latest'
+    update_cache: true
+    install_recommends: true
+
+- name: 'pve | enable wireguard on boot'
+  ansible.builtin.copy:
+    src:   'etc/modules-load.d/wireguard.conf'
+    dest:  '/etc/modules-load.d/wireguard.conf'
+    owner: 'root'
+    group: 'root'
+    mode:  0644
+    force: true
+
+# Occasionally PVE will fail to load modules until reboot
+- name: 'pve | load wireguard kernel module realtime'
+  community.general.modprobe:
+    name:  'wireguard'
+    state: 'present'
+  failed_when: false
+  changed_when: false

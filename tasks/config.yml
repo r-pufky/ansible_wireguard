@@ -1,0 +1,34 @@
+---
+###############################################################################
+# Configure Wireguard Connections
+###############################################################################
+#
+# Args:
+#   wireguard_ipv4_forwarding: boolean true to enable IPv4 forwarding.
+#   wireguard_ipv6_forwarding: boolean true to enable IPv6 forwarding.
+#   wireguard_force_refesh_adapters: boolean true to refresh adapters.
+#   wireguard_adapter_config: list of wireguard adapters to configure.
+
+- name: 'config | set wireguard IP fowarding'
+  ansible.posix.sysctl:
+    name:  '{{ item.name }}'
+    value: '{{ item.value }}'
+    sysctl_file: '/etc/sysctl.d/10-kernel-ip-forwarding.conf'
+    state: 'present'
+  loop:
+    - {name: 'net.ipv4.ip_forward',          value: '{{ wireguard_ipv4_forwarding|int }}'}
+    - {name: 'net.ipv6.conf.all.forwarding', value: '{{ wireguard_ipv6_forwarding|int }}'}
+
+- name: 'config | force refresh adapters'
+  ansible.builtin.include_tasks: force_remove.yml
+  when: wireguard_force_refresh_adapters
+
+- name: 'config | configure wireguard adapters'
+  ansible.builtin.include_tasks: adapter.yml
+  loop: '{{ wireguard_adapter_config }}'
+  loop_control:
+    loop_var: adapter
+  when: |
+    wireguard_adapter_config is defined and
+    wireguard_adapter_config|length > 0
+  no_log: true # wg private key

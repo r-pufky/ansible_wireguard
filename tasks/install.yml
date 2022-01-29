@@ -1,0 +1,34 @@
+---
+###############################################################################
+# Wireguard Install
+###############################################################################
+# Install wireguard based on system configuration.
+#
+# * PVE / LXC containers need to be built specifically against PVE headers.
+# * VM/baremetal need to install backports if kernel is < 5.6.
+# * VM/baremetal just need package if kernel is > 5.6.
+
+- name: 'install | check for pve node'
+  ansible.builtin.stat:
+    path: '/usr/bin/pveversion'
+  register: _wireguard_is_pve
+
+- name: 'install | check kernel version'
+  ansible.builtin.set_fact:
+    _wireguard_kernel_pre_56: "{{ ansible_kernel is version('5.6', '<') }}"
+
+- name: 'install | install wireguard for pve'
+  ansible.builtin.import_tasks: install_pve.yml
+  when: _wireguard_is_pve.stat.exists
+
+- name: 'install | install wireguard for baremetal/vms (kernel < 5.6)'
+  ansible.builtin.import_tasks: install_pre_kernel_56.yml
+  when: |
+    not _wireguard_is_pve.stat.exists and
+    _wireguard_kernel_pre_56
+
+- name: 'install | install wireguard for baremetal/vms (kernel >= 5.6)'
+  ansible.builtin.import_tasks: install_post_kernel_56.yml
+  when: |
+    not _wireguard_is_pve.stat.exists and
+    not _wireguard_kernel_pre_56

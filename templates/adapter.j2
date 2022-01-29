@@ -1,0 +1,11 @@
+[Interface]
+{% for key, value in interface.items() -%}
+{{ key }} = {{ value }}
+{% endfor %}
+
+{%- for peer in peers %}
+[Peer]
+{% for key, value in peer.items() -%}
+{{ key }} = {{ value }}
+{% endfor -%}
+{% endfor %}

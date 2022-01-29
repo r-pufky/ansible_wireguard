@@ -1,0 +1,52 @@
+---
+###############################################################################
+# Wireguard installation for VM or Physical Machine (Kernel < 5.6)
+###############################################################################
+# Kernels older than 5.6 require kernel modules to be installed.
+#
+# Reference:
+# * https://r-pufky.github.io/docs/services/wireguard/linux-setup.html#service-wireguard-linux-setup
+
+- name: 'pre 5.6 kernel | add debian backports for wireguard support'
+  ansible.builtin.apt_repository:
+    repo:     'deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib non-free'
+    filename: 'backports'
+    state:    'present'
+    update_cache: true
+
+- name: 'pre 5.6 kernel | add debian source backports for wireguard support'
+  ansible.builtin.apt_repository:
+    repo: 'deb-src http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main contrib non-free'
+    filename: 'backports_source'
+    state:    'present'
+    update_cache: true
+
+- name: 'pre 5.6 kernel | install kernel headers'
+  ansible.builtin.apt:
+    name:  'linux-headers-amd64'
+    state: 'latest'
+    update_cache: true
+
+- name: 'pre 5.6 kernel | install wireguard'
+  ansible.builtin.apt:
+    name: '{{ wireguard_default_packages }}'
+    default_release: '{{ ansible_distribution_release }}-backports'
+    state: 'latest'
+    update_cache: true
+    install_recommends: true
+
+- name: 'pre 5.6 kernel | enable wireguard on boot'
+  ansible.builtin.copy:
+    src:   'etc/modules-load.d/wireguard.conf'
+    dest:  '/etc/modules-load.d/wireguard.conf'
+    owner: 'root'
+    group: 'root'
+    mode:  0644
+    force: true
+
+- name: 'pre 5.6 kernel | load wireguard kernel module realtime'
+  community.general.modprobe:
+    name:  'wireguard'
+    state: 'present'
+  failed_when: false
+  changed_when: false
