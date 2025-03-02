@@ -53,12 +53,12 @@
     - name: 'Default | verify | query example_absent.conf'
       ansible.builtin.stat:
         path: '/etc/wireguard/example_absent.conf'
-      register: _test_wireguare_example_absent
+      register: _test_wireguard_example_absent
 
     - name: 'Default | verify | assert example_absent.conf'
       ansible.builtin.assert:
         that:
-          - not _test_wireguare_example_absent.stat.exists
+          - not _test_wireguard_example_absent.stat.exists
         fail_msg: >
           /etc/wireguard/example_absent.conf should have been removed.
 
