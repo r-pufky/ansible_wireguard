@@ -70,6 +70,18 @@ provisioner:
                   host: '127.0.0.1'
                   port: 51820
                 persistent_keepalive: 25
+          - name: 'example_no_endpoint'
+            state: 'present'
+            private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
+            address:
+              - '172.31.255.10/24'
+            save_config: false
+            peers:
+              - public_key: 'gyW39I9bAiOBXyhL8LWw9qwiTZgMmtAbsWtLUv8uKTc='
+                preshared_key: 'xZOa9wXPCL86UtIEMc4kKwj/wsCohs+S9NexPLDaFwU='
+                allowed_ips:
+                  - '172.31.255.254/32'
+                persistent_keepalive: 25
           - name: 'example_disabled'
             state: 'disabled'
             private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
