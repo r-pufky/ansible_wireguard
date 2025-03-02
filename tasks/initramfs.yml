@@ -7,6 +7,9 @@
 # * https://github.com/r-pufky/wireguard-initramfs
 
 - name: 'InitRAMFS | set wireguard-initramfs config'
+  notify:
+    - 'Handlers | update-initramfs'
+    - 'Handlers | update-grub'
   ansible.builtin.template:
     src: 'initramfs.j2'
     dest: '/etc/wireguard/initramfs'
@@ -14,6 +17,3 @@
     group: 'root'
     mode: '0644'
     force: true
-  notify:
-    - 'Handlers | update-initramfs'
-    - 'Handlers | update-grub'

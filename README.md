@@ -51,7 +51,7 @@ Apply the base role
 
 ### Wireguard-initramfs is support as well.
 Download and install the latest wireguard-initramfs release for use with
-dropbear to remotely unlocked encrypted disks.
+`r_pufky.srv.dropbear` to remotely unlocked encrypted disks.
 
 Install wireguard-initramfs and configure boot adapter.
 ``` yaml
