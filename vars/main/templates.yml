@@ -31,5 +31,5 @@ wireguard_role_template_peers:
   public_key: ''
   preshared_key: ''
   allowed_ips: []
-  endpoint: {'host': '', 'port': 0}
+  endpoint: {}
   persistent_keepalive: 0

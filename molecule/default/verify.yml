@@ -81,6 +81,25 @@
           /etc/wireguard/example_present.conf is not in expected format:
           {{ _test_wireguard_example_present.diff }}.
 
+    - name: 'Default | verify | query example_no_endpoint.conf'
+      ansible.builtin.copy:
+        src: 'files/no_endpoint.conf'
+        dest: '/etc/wireguard/example_no_endpoint.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'
+      check_mode: true
+      diff: true
+      register: _test_wireguard_no_endpoint
+
+    - name: 'Default | verify | assert example_no_endpoint.conf'
+      ansible.builtin.assert:
+        that:
+          - not _test_wireguard_no_endpoint.changed
+        fail_msg: >
+          /etc/wireguard/example_no_endpoint.conf is not in expected format:
+          {{ _test_wireguard_no_endpoint.diff }}.
+
     - name: 'Default | verify | query example_enabled.conf'
       ansible.builtin.copy:
         src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
