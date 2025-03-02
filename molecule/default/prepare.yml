@@ -1,0 +1,30 @@
+---
+# yamllint disable rule:line-length
+- name: 'Default | prepare'
+  hosts: 'all'
+  gather_facts: false
+  become: true
+  tasks:
+    - name: 'Default | prepare | create package directory'
+      ansible.builtin.file:
+        path: '/etc/wireguard'
+        owner: 'root'
+        group: 'root'
+        mode: '0700'
+        state: 'directory'
+
+    - name: 'Default | prepare | inject example_disabled.conf'
+      ansible.builtin.copy:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        dest: '/etc/wireguard/example_disabled.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'
+
+    - name: 'Default | prepare | inject example_absent.conf'
+      ansible.builtin.copy:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        dest: '/etc/wireguard/example_absent.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'

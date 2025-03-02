@@ -2,54 +2,140 @@
 ###############################################################################
 # Wireguard Adapter Configuration
 ###############################################################################
-# List of dicts containing wireguard adapters to setup. ALL configuration
-# options can be specified dynamically as needed.
+# Store keys in group_vars so both client and server can be configured.
 #
-# Generate keys using wireguard/files/scripts/wggen {HOST}. Store
-# vault-encrypted keys in group_vars so both client and server can be
-# configured without duplication.
+# Generate public/private key:
+#
+#   wg genkey | tee adapter.key | wg pubkey > adapter.pub
+#   wg genpsk > preshared.key
 #
 # Reference:
+# * https://manpages.debian.org/unstable/wireguard-tools/wg-quick.8.en.html
 # * https://manpages.debian.org/unstable/wireguard-tools/wg.8.en.html
-#
-# wireguard_adapter_config:
-#   - {adapter: {ADAPTER NAME},
-#      interface: {Address: {IP/CIDR}, PrivateKey: {VAULT CLIENT PRIVATE}, SaveConfig: 'False'},
-#      peers: [
-#        {PublicKey: {VAULT SERVER PUBLIC}, EndPoint: { server ip/dns:port }, AllowedIPs: {IP/CIDR}},
-#      ]
-#     }
-#
-# Server:
-#   wireguard_adapter_config:
-#     - {adapter: 'tunnel',
-#        interface: {
-#          Address: '172.31.255.254/24',
-#          SaveConfig: 'False',
-#          ListenPort: 51820,
-#          PrivateKey: '{{ vault_wireguard_server_private_key }}',
-#        },
-#        peers: [
-#          {PublicKey: '{{ vault_wireguard_client_public_key }}', AllowedIPs: '172.31.255.10/32'},
-#        ]
-#       }
-#
-# Client:
-#   wireguard_adapter_config:
-#     - {adapter: 'tunnel',
-#        interface: {
-#          Address: '172.31.255.10/24',
-#          SaveConfig: 'False',
-#          PrivateKey: '{{ vault_wireguard_client_private_key }}',
-#        },
-#        peers: [
-#          {
-#            PublicKey: '{{ vault_wireguard_server_public_key }}',
-#            AllowedIPs: '172.31.255.254/32',
-#            EndPoint: 'wireguard-server.example.com:51820',
-#            PersistentKeepalive: 25
-#          },
-#        ]
-#       }
 
-wireguard_adapter_config: []
+# Wireguard adapter configuration.
+#
+# wireguard_adapters:
+#     list of dicts - Wireguard adapters.
+#   - name: str - Wireguard interface adapter name ([a-zA-Z0-9_=+.-]{1,15}).
+#     state: str - adapter install state
+#         Values:
+#           present: manage adapter config only.
+#           enabled: manager adapter config and up adapter after changes.
+#          disabled: down adapter and manager adapter config.
+#            absent: down and remove adapter.
+#         Default: 'present'.
+#     private_key: str - Base64 encoded interface private key. Use 'wg genkey'.
+#     listen_port: int - Listening port.
+#         Values:
+#           0: Use random port (default).
+#         Default: 0 (random).
+#     fw_mark: str - Firewall mark for outgoing packets.
+#           Values:
+#             0x{HEX}: Use hexadecimal value instead of string value.
+#                   0: disabled (default).
+#           Default: 0 (disabled).
+#     address: list of str - interface addresses.
+#         Values:
+#           {CIDR}: IPv4/IPv6 CIDR notation.
+#           {IPv4}: IPv4.
+#           {IPv6}: IPv6.
+#     dns: list of str - interface DNS servers.
+#         Values:
+#           {FQDN}: Fully qualified domain names.
+#           {HOST}: Partial domain name that can be resolved.
+#           {IPv4}: IPv4.
+#           {IPv6}: IPv6.
+#     mtu: int - MTU for wireguard packets.
+#         Values:
+#           0: disabled (use automatic discovery).
+#         Default: 0 (use automatic discovery).
+#     table: str - routing table to which routes are added.
+#         Values:
+#                off: Disables the creation of routes altogether.
+#               auto: Adds routes to the default table and enables special
+#                     handling of default routes (default).
+#            {TABLE}: Table ID to add routes to.
+#         Default: 'auto'.
+#     pre_up: list of str - bash script snippet before setting up adapter;
+#           executed in order.
+#         Special Case:
+#           '%i': expanded to INTERFACE.
+#         Default: [] (no pre-up scripts).
+#     post_up: list of str - bash script snippet after setting up adapter;
+#           executed in order.
+#         Special Case:
+#           '%i': expanded to INTERFACE.
+#         Default: [] (no post-up scripts).
+#     pre_down: list of str - bash script snippet before turning down adapter;
+#           executed in order.
+#         Special Case:
+#           '%i': expanded to INTERFACE.
+#         Default: [] (no pre-down scripts).
+#     post_down: list of str - bash script snippet before turning down adapter;
+#           executed in order.
+#         Special Case:
+#           '%i': expanded to INTERFACE.
+#         Default: [] (no pre-down scripts).
+#     save_config: bool - overwrite interface config on shutdown?
+#         Default: False.
+#     peers:
+#         list of dicts - Wireguard adapter peers.
+#       - public_key: str - Base64 encoded peer public key. Use 'wg genkey'.
+#         preshared_key: str - Base64 preshared key. Use 'wg genpsk'.
+#             Default: '' (disabled).
+#         allowed_ips: list of str - hosts to allow; must be defined otherwise
+#               all traffic is blocked.
+#             Values:
+#                    {CIDR}: IPv4/IPv6 CIDR notation.
+#               '0.0.0.0/0': Match all IPv4 addresses.
+#                    '::/0': Match all IPv6 addresses.
+#         endpoint: dict - public peer endpoint.
+#           host: str - host address.
+#               Values:
+#                 {FQDN}: Fully qualified domain names.
+#                 {HOST}: Partial domain name that can be resolved.
+#                 {IPv4}: IPv4.
+#                 {IPv6}: IPv6.
+#           port: int - host port.
+#         persistent_keepalive: int - keepalive interval in seconds.
+#           Values:
+#             65535: Max interval.
+#                 1: Min interval.
+#                 0: disabled (default).
+#           Default: 0 (disabled).
+#
+# wireguard_adapters:  # example 'server' endpoint.
+#   - name: 'vpn'
+#     state: 'enabled'
+#     private_key: '{{ vault_wireguard_vpn_private_key }}'
+#     listen_port: 51820
+#     address:
+#       - '172.31.255.254/24'
+#     save_config: false
+#     peers:
+#       - public_key: '{{ vault_wireguard_client_public_key }}'
+#         preshared_key: '{{ vault_wireguard_clientvpn_preshared_key }}'
+#         allowed_ips:
+#           - '172.31.255.10/32'
+#         persistent_keepalive: 25
+#
+# wireguard_adapters:  # example 'client' endpoint.
+#   - name: 'vpn'
+#     state: 'enabled'
+#     private_key: '{{ vault_wireguard_client_private_key }}'
+#     address:
+#       - '172.31.255.10/24'
+#     save_config: false
+#     peers:
+#       - public_key: '{{ vault_wireguard_vpn_public_key }}'
+#         preshared_key: '{{ vault_wireguard_clientvpn_preshared_key }}'
+#         allowed_ips:
+#           - '172.31.255.254/32'
+#         endpoint:
+#           host: 'wg.example.com'
+#           port: 51820
+#         persistent_keepalive: 25
+#
+# Default: [].
+wireguard_adapters: []

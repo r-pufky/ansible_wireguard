@@ -1,34 +1,42 @@
 ---
+# yamllint disable rule:line-length
 ###############################################################################
 # Configure Wireguard Connections
 ###############################################################################
-#
-# Args:
-#   wireguard_ipv4_forwarding: boolean true to enable IPv4 forwarding.
-#   wireguard_ipv6_forwarding: boolean true to enable IPv6 forwarding.
-#   wireguard_force_refesh_adapters: boolean true to refresh adapters.
-#   wireguard_adapter_config: list of wireguard adapters to configure.
+# Uses sysctl (e.g. the kernel namespace must be available).
 
-- name: 'config | set wireguard IP fowarding'
+- name: 'Config | force remove'
+  when: wireguard_service_force_refresh_adapters
+  block:
+    - name: 'Config | force remove | find existing adapter configs'
+      ansible.builtin.find:
+        paths: '/etc/wireguard'
+        patterns: '*.conf'
+      register: _wireguard_adapter_configs
+
+    - name: 'Config | force remove | remove'
+      ansible.builtin.include_tasks: 'remove.yml'
+      vars:
+        path: '{{ item.path }}'
+      loop: '{{ _wireguard_adapter_configs.files }}'
+      loop_control:
+        label: '{{ item.path | basename }}'
+
+- name: 'Config | set IP forwarding'
+  when: not wireguard_container_enable
   ansible.posix.sysctl:
-    name:  '{{ item.name }}'
+    name: '{{ item.name }}'
     value: '{{ item.value }}'
-    sysctl_file: '/etc/sysctl.d/10-kernel-ip-forwarding.conf'
     state: 'present'
+    reload: true
   loop:
-    - {name: 'net.ipv4.ip_forward',          value: '{{ wireguard_ipv4_forwarding|int }}'}
-    - {name: 'net.ipv6.conf.all.forwarding', value: '{{ wireguard_ipv6_forwarding|int }}'}
+    - {name: 'net.ipv4.ip_forward', value: '{{ wireguard_service_ipv4_forwarding_enable | int }}'}
+    - {name: 'net.ipv6.conf.all.forwarding', value: '{{ wireguard_service_ipv6_forwarding_enable | int }}'}
 
-- name: 'config | force refresh adapters'
-  ansible.builtin.include_tasks: force_remove.yml
-  when: wireguard_force_refresh_adapters
-
-- name: 'config | configure wireguard adapters'
-  ansible.builtin.include_tasks: adapter.yml
-  loop: '{{ wireguard_adapter_config }}'
+- name: 'Config | configure wireguard adapters'
+  ansible.builtin.include_tasks: 'adapter.yml'
+  loop: '{{ wireguard_adapters }}'
   loop_control:
     loop_var: adapter
-  when: |
-    wireguard_adapter_config is defined and
-    wireguard_adapter_config|length > 0
-  no_log: true # wg private key
+    label: '{{ adapter.name }}'
+  no_log: true  # wg private key

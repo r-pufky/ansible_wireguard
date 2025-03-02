@@ -1,0 +1,20 @@
+---
+# yamllint disable rule:line-length
+###############################################################################
+# Remove Interface
+###############################################################################
+# Stop interface and remove configuration file. If the adapter is not currently
+# running an error will be raised stopping a non-running adapter - ignore.
+#
+# Args:
+#   path: str - absolute path to the adapter configuration file.
+
+- name: 'Remove | stop adapter'
+  ansible.builtin.command: 'wg-quick down {{ path | basename | splitext | first }}'
+  changed_when: false
+  failed_when: false
+
+- name: 'Remove | remove adapter config'
+  ansible.builtin.file:
+    path: '{{ path }}'
+    state: 'absent'

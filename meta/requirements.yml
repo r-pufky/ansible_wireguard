@@ -1,10 +1,8 @@
 ---
+# yamllint disable rule:line-length
 collections:
-  # https://docs.ansible.com/ansible/latest/collections/ansible/posix/index.html
-  # sysctl synchronize, authorized_key
-  - ansible.posix
-  # https://docs.ansible.com/ansible/latest/collections/community/general/
-  # archive
-  - community.general
+  - name: 'ansible.posix'  # https://docs.ansible.com/ansible/latest/collections/ansible/posix/index.html
 
-roles: []
+roles:
+  - name: 'r_pufky.srv.apt'  # https://github.com/r-pufky/ansible_collection_srv
+  - name: 'r_pufky.srv.github'  # https://github.com/r-pufky/ansible_collection_srv
