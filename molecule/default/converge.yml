@@ -1,0 +1,9 @@
+---
+- name: 'Default | converge'
+  hosts: 'all'
+  gather_facts: true  # ansible_kernel
+  become: true
+  tasks:
+    - name: 'Default | converge | apply r_pufky.srv.wireguard'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.wireguard'

@@ -1,0 +1,19 @@
+---
+###############################################################################
+# Enable wireguard in Kernel Init for Dropbear over Wireguard Support
+###############################################################################
+#
+# Reference:
+# * https://github.com/r-pufky/wireguard-initramfs
+
+- name: 'InitRAMFS | set wireguard-initramfs config'
+  ansible.builtin.template:
+    src: 'initramfs.j2'
+    dest: '/etc/wireguard/initramfs'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+    force: true
+  notify:
+    - 'Handlers | update-initramfs'
+    - 'Handlers | update-grub'

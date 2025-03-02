@@ -1,0 +1,68 @@
+---
+# yamllint disable rule:line-length
+# Confirm:
+# * force refreshing adapters removes and re-creates adapters without failing.
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'podman'
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+    ssh_connection:
+      pipelining: false
+  inventory:
+    group_vars:
+      all:
+        srv_container_enable: true
+        github_testing_enable: true
+        github_testing_version: '2025-03-01'
+        github_testing_archive: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
+        wireguard_service_force_refresh_adapters: true
+        wireguard_adapters:
+          - name: 'example_present'
+            state: 'present'
+            private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
+            address:
+              - '172.31.255.10/24'
+            save_config: false
+            peers:
+              - public_key: 'gyW39I9bAiOBXyhL8LWw9qwiTZgMmtAbsWtLUv8uKTc='
+                preshared_key: 'xZOa9wXPCL86UtIEMc4kKwj/wsCohs+S9NexPLDaFwU='
+                allowed_ips:
+                  - '172.31.255.254/32'
+                endpoint:
+                  host: '127.0.0.1'
+                  port: 51820
+                persistent_keepalive: 25
+platforms:
+  - name: 'wireguard-debian-12-force_refresh'
+    image: 'ghcr.io/hifis-net/debian-systemd:12'
+    systemd: 'always'
+    volumes:
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    command: '/lib/systemd/systemd'
+    pre_build_image: true
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # Files created, extracted, created, deleted.
+    # - 'side_effect'
+    - 'verify'
+    # - 'cleanup'
+    - 'destroy'

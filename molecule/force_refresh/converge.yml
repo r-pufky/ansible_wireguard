@@ -1,0 +1,8 @@
+---
+- name: 'Force refresh | converge'
+  hosts: 'all'
+  gather_facts: true  # ansible_kernel
+  tasks:
+    - name: 'Force refresh | converge | apply r_pufky.srv.wireguard'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.wireguard'

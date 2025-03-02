@@ -1,7 +1,16 @@
 ---
-- ansible.builtin.import_tasks: install.yml
-- ansible.builtin.import_tasks: force_remove.yml
-  when: wireguard_force_refresh_adapters
-- ansible.builtin.import_tasks: config.yml
-- ansible.builtin.import_tasks: wireguard_initramfs.yml
+- name: 'Force wireguard_container_enable=true (srv_container_enable)'
+  when: srv_container_enable | default(false)
+  ansible.builtin.set_fact:
+    wireguard_container_enable: true
+
+- name: 'Prep'
+  ansible.builtin.import_tasks: 'prep.yml'
+- name: 'Install'
+  ansible.builtin.import_tasks: 'install.yml'
+- name: 'Config'
+  ansible.builtin.import_tasks: 'config.yml'
+
+- name: 'InitRAMFS'
   when: wireguard_initramfs_enable
+  ansible.builtin.import_tasks: 'initramfs.yml'

@@ -1,0 +1,131 @@
+---
+# yamllint disable rule:line-length
+- name: 'Default | verify'
+  hosts: 'all'
+  gather_facts: false
+  become: true
+  tasks:
+    - name: 'Default | verify | query IPv4 forwarding'
+      ansible.builtin.command: 'sysctl --values net.ipv4.ip_forward'
+      register: _test_wireguard_ipv4_forwarding
+      changed_when: false
+
+    - name: 'Default | verify | assert IPv4 forwarding set'
+      ansible.builtin.assert:
+        that:
+          - _test_wireguard_ipv4_forwarding.stdout | int == 1
+        fail_msg: >
+          sysctl should report net.ipv4.ip_forward=1
+          ({{ _test_wireguard_ipv4_forwarding.stdout }}).
+
+    - name: 'Default | verify | query IPv6 forwarding'
+      ansible.builtin.command: 'sysctl --values net.ipv6.conf.all.forwarding'
+      register: _test_wireguard_ipv6_forwarding
+      changed_when: false
+
+    - name: 'Default | verify | assert IPv6 forwarding set'
+      ansible.builtin.assert:
+        that:
+          - _test_wireguard_ipv6_forwarding.stdout | int == 1
+        fail_msg: >
+          sysctl should report net.ipv6.conf.all.forwarding=1
+          ({{ _test_wireguard_ipv6_forwarding.stdout }}).
+
+    - name: 'Default | verify | query example_disabled.conf'
+      ansible.builtin.copy:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        dest: '/etc/wireguard/example_disabled.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'
+      check_mode: true
+      diff: true
+      register: _test_wireguard_example_disabled
+
+    - name: 'Default | verify | assert example_disabled.conf'
+      ansible.builtin.assert:
+        that:
+          - not _test_wireguard_example_disabled.changed
+        fail_msg: >
+          /etc/wireguard/example_disabled.conf is not in expected format:
+          {{ _test_wireguard_example_disabled.diff }}.
+
+    - name: 'Default | verify | query example_absent.conf'
+      ansible.builtin.stat:
+        path: '/etc/wireguard/example_absent.conf'
+      register: _test_wireguare_example_absent
+
+    - name: 'Default | verify | assert example_absent.conf'
+      ansible.builtin.assert:
+        that:
+          - not _test_wireguare_example_absent.stat.exists
+        fail_msg: >
+          /etc/wireguard/example_absent.conf should have been removed.
+
+    - name: 'Default | verify | query example_present.conf'
+      ansible.builtin.copy:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        dest: '/etc/wireguard/example_present.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'
+      check_mode: true
+      diff: true
+      register: _test_wireguard_example_present
+
+    - name: 'Default | verify | assert example_present.conf'
+      ansible.builtin.assert:
+        that:
+          - not _test_wireguard_example_present.changed
+        fail_msg: >
+          /etc/wireguard/example_present.conf is not in expected format:
+          {{ _test_wireguard_example_present.diff }}.
+
+    - name: 'Default | verify | query example_enabled.conf'
+      ansible.builtin.copy:
+        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        dest: '/etc/wireguard/example_enabled.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'
+      check_mode: true
+      diff: true
+      register: _test_wireguard_example_enabled
+
+    - name: 'Default | verify | assert example_enabled.conf'
+      ansible.builtin.assert:
+        that:
+          - not _test_wireguard_example_enabled.changed
+        fail_msg: >
+          /etc/wireguard/example_enabled.conf is not in expected format:
+          {{ _test_wireguard_example_enabled.diff }}.
+
+    - name: 'Default | verify | query example_enabled status'
+      ansible.builtin.command: 'wg show example_enabled'
+      changed_when: false
+      register: _test_wireguard_adapter_status
+
+    - name: 'Default | verify | assert example_enabled active'
+      ansible.builtin.assert:
+        that:
+          - _test_wireguard_adapter_status.rc == 0
+        fail_msg: 'wg show example_enabled should display configured adapter.'
+
+    - name: 'Default | verify | query initramfs'
+      ansible.builtin.copy:
+        src: 'files/initramfs'
+        dest: '/etc/wireguard/initramfs'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      check_mode: true
+      diff: true
+      register: _test_wireguard_initramfs
+
+    - name: 'Default | verify | assert initramfs'
+      ansible.builtin.assert:
+        that:
+          - not _test_wireguard_initramfs.changed
+        fail_msg: >
+          /etc/wireguard/initramfs is not in expected format:
+          {{ _test_wireguard_initramfs.diff }}.

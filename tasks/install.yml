@@ -1,34 +1,68 @@
 ---
+# yamllint disable rule:line-length
 ###############################################################################
 # Wireguard Install
 ###############################################################################
-# Install wireguard based on system configuration.
+# Kernels at 5.6 or newer do not require kernel modules to be installed. LXC
+# containers need to be built specifically against PVE node headers. PVE
+# cluster nodes need to have PVE headers installed.
 #
-# * PVE / LXC containers need to be built specifically against PVE headers.
-# * VM/baremetal need to install backports if kernel is < 5.6.
-# * VM/baremetal just need package if kernel is > 5.6.
+# Args:
+#   _wireguard_is_pve: ansible.builtin.stat - stat.exists if PVE node.
+#
+# Reference:
+# * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#add-wireguard-kernel-support
+# * https://nixvsevil.com/posts/wireguard-in-proxmox-lxc/
 
-- name: 'install | check for pve node'
-  ansible.builtin.stat:
-    path: '/usr/bin/pveversion'
-  register: _wireguard_is_pve
+- name: 'Install | packages'
+  ansible.builtin.include_role:
+    name: 'r_pufky.srv.apt'
+  vars:
+    apt_packages:
+      - '{{ wireguard_role_packages }}'
+      - '{{ wireguard_role_initramfs_packages if wireguard_initramfs_enable else [] }}'
+    apt_package_update_cache: true
 
-- name: 'install | check kernel version'
-  ansible.builtin.set_fact:
-    _wireguard_kernel_pre_56: "{{ ansible_kernel is version('5.6', '<') }}"
+# TODO(role): Update for PVE8.x and enable.
+# - name: 'Install | PVE'
+#   when: _wireguard_is_pve.stat.exists
+#   block:
+#     - name: 'Install | PVE | set wireguard kernel modules'
+#       ansible.builtin.copy:
+#         src: 'etc/modules-load.d/wireguard.conf'
+#         dest: '/etc/modules-load.d/wireguard.conf'
+#         owner: 'root'
+#         group: 'root'
+#         mode: '0644'
+#         force: true
+#
+#     - name: 'Install | PVE | load wireguard kernel module realtime'
+#       community.general.modprobe:
+#         name: 'wireguard'
+#         state: 'present'
+#       failed_when: false
+#       changed_when: false
 
-- name: 'install | install wireguard for pve'
-  ansible.builtin.import_tasks: install_pve.yml
-  when: _wireguard_is_pve.stat.exists
+- name: 'Install | wireguard-initramfs'
+  when: wireguard_initramfs_enable
+  block:
+    - name: 'Install | wireguard-initramfs | {{ wireguard_initramfs_version }}'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.github'
+      vars:
+        github_repo_owner: '{{ wireguard_role_github_owner }}'
+        github_repo_repo: '{{ wireguard_role_github_repo }}'
+        github_repo_release: '{{ wireguard_initramfs_version }}'
+        github_repo_archive_type: '{{ wireguard_role_github_repo_archive_type }}'
+        github_extract_dest: '{{ wireguard_role_github_extract_dest }}'
+        github_extract_symlink_target: '{{ wireguard_role_github_extract_symlink_target }}'
+        github_extract_mode: 'a-st,o-rwx'
+        github_extract_extra_opts: '--strip-components=1'
 
-- name: 'install | install wireguard for baremetal/vms (kernel < 5.6)'
-  ansible.builtin.import_tasks: install_pre_kernel_56.yml
-  when: |
-    not _wireguard_is_pve.stat.exists and
-    _wireguard_kernel_pre_56
-
-- name: 'install | install wireguard for baremetal/vms (kernel >= 5.6)'
-  ansible.builtin.import_tasks: install_post_kernel_56.yml
-  when: |
-    not _wireguard_is_pve.stat.exists and
-    not _wireguard_kernel_pre_56
+    - name: 'Install | wireguard-initramfs | make'
+      when: _github_changed
+      ansible.builtin.command: 'make install'
+      become: true
+      args:
+        chdir: '/opt/wireguard-initramfs/wireguard-initramfs'
+      changed_when: true

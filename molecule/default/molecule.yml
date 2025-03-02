@@ -1,0 +1,109 @@
+---
+# yamllint disable rule:line-length
+# Network level testing requires VMs for kernel namespace and systemd
+# networking without affecting host.
+#
+# Invalid wireguard configs (e.g. user error in adapter configuration) are not
+# tested; only that settings as specified are deployed correctly.
+#
+# Keys are well-known example keys from wireguard-initramfs.
+#
+# Confirm:
+# * initramfs not installed.
+# * Wireguard packages are installed, no adapters created.
+# * confirm that template renders are correct.
+dependency:
+  name: 'galaxy'
+driver:
+  name: 'vagrant'
+  provider:
+    name: 'virtualbox'
+    config_options:
+      ssh.keep_alive: true
+      ssh.remote_user: 'root'
+    options:
+      append_platform_to_hostname: false
+provisioner:
+  name: 'ansible'
+  config_options:
+    defaults:
+      interpreter_python: 'auto_silent'
+      callback_whitelist: 'profile_tasks, timer, yaml'
+  inventory:
+    group_vars:
+      all:
+        github_testing_enable: true
+        github_testing_version: '2025-03-01'
+        github_testing_archive: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
+        wireguard_initramfs_enable: true
+        wireguard_initramfs_adapter: 'example_enabled'
+        wireguard_service_ipv4_forwarding_enable: true
+        wireguard_service_ipv6_forwarding_enable: true
+        wireguard_adapters:
+          - name: 'example_enabled'
+            state: 'enabled'
+            private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
+            address:
+              - '172.31.255.10/24'
+            save_config: false
+            peers:
+              - public_key: 'gyW39I9bAiOBXyhL8LWw9qwiTZgMmtAbsWtLUv8uKTc='
+                preshared_key: 'xZOa9wXPCL86UtIEMc4kKwj/wsCohs+S9NexPLDaFwU='
+                allowed_ips:
+                  - '172.31.255.254/32'
+                endpoint:
+                  host: '127.0.0.1'
+                  port: 51820
+                persistent_keepalive: 25
+          - name: 'example_present'
+            state: 'present'
+            private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
+            address:
+              - '172.31.255.10/24'
+            save_config: false
+            peers:
+              - public_key: 'gyW39I9bAiOBXyhL8LWw9qwiTZgMmtAbsWtLUv8uKTc='
+                preshared_key: 'xZOa9wXPCL86UtIEMc4kKwj/wsCohs+S9NexPLDaFwU='
+                allowed_ips:
+                  - '172.31.255.254/32'
+                endpoint:
+                  host: '127.0.0.1'
+                  port: 51820
+                persistent_keepalive: 25
+          - name: 'example_disabled'
+            state: 'disabled'
+            private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
+            address:
+              - '172.31.255.10/24'
+          - name: 'example_absent'
+            state: 'absent'
+            private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
+platforms:
+  - name: 'wireguard-debian-12-vm-default'
+    box: 'debian/bookworm64'
+    memory: 4096
+    cpus: 2
+    interfaces:
+      - network_name: private_network  # network_name required
+        auto_config: true
+        type: 'dhcp'
+verifier:
+  name: 'ansible'
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+scenario:
+  test_sequence:
+    # - 'dependency'
+    # - 'cleanup'
+    - 'destroy'
+    - 'syntax'
+    - 'create'
+    - 'prepare'
+    - 'converge'
+    # - 'idempotence'  # Files created, extracted, created, deleted.
+    # - 'side_effect'
+    - 'verify'
+    # - 'cleanup'
+    - 'destroy'

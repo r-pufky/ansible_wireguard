@@ -1,0 +1,60 @@
+# Wireguard initramfs configuration.
+#
+# NOTE: As most systems do not encrypt /boot, private key material is exposed
+#       and compromised/untrusted. Boot wireguard network should be
+#       **different** & untrusted; versus the network used after booting.
+#       Always restrict ports and access on the wireguard server.
+#
+# Be sure to test wireguard config with a running system before setting
+# options.
+#
+# Restricting dropbear connections to **only** wireguard:
+# * Confirm wireguard/dropbear work without restriction first.
+# * Set dropbear listen address to only wireguard interface (INTERFACE_ADDR_*)
+#   address:
+#
+#   /etc/dropbear/initramfs/config
+#     DROPBEAR_OPTIONS='... -p 172.31.255.10:22 ...'
+#
+# Reference:
+# * https://manpages.debian.org/unstable/wireguard-tools/wg-quick.8.en.html
+
+# Absolute path to working wireguard adapter config for initramfs. This is
+# copied to initramfs and loaded after the hardware device is initialized to
+# complete wireguard configuration.
+#
+# PersistentKeepalive is usually required so the machine checks in with the
+# wireguard endpoint while booting. If there are issues with no connectivity
+# but the adapter config works fine when the system is fully booted, this is
+# very likely the cause. Suggest 25 seconds:
+#
+#   PersistentKeepalive = 25
+#
+ADAPTER="/etc/wireguard/{{ wireguard_initramfs_adapter }}.conf"
+
+# Enable wg-quick for adapter management?
+#
+# wg is used by default and requires no additional dependencies, at the cost of
+# parsing the adapter configuration with a reduced set of options.
+#
+# Enabling will add wg-quick and bash to the initramfs package, enabling full
+# adapter configuration support at the cost of an additional 1.4M of space. See
+# references for configuration file differences.
+#
+# Highly recommend only enabling if basic wg configuration does not meet needs.
+#
+# Any value enables.
+ENABLE_QUICK={{ 'y' if wireguard_initramfs_quick_enable else '' }}
+
+# URL to send a web request to set the local datetime.
+#
+# Raspberry Pi's should enable this feature for wireguard-initramfs to work.
+#
+# Skipped if blank.
+DATETIME_URL={{ wireguard_initramfs_datetime_url }}
+
+# Persist (do not down) interface after initramfs exits? Any value enables.
+PERSISTENT={{ 'y' if wireguard_initramfs_persistent_enable else '' }}
+
+# Enable debug logging (will expose key material)? Any value enables.
+DEBUG={{ 'y' if wireguard_initramfs_debug_enable else '' }}

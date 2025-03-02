@@ -1,11 +1,60 @@
 [Interface]
-{% for key, value in interface.items() -%}
-{{ key }} = {{ value }}
+PrivateKey = {{ _adapter.private_key }}
+ListenPort = {{ _adapter.listen_port }}
+FwMark = {{ _adapter.fw_mark }}
+{% if _adapter.address | length > 0 %}
+{% for i in _adapter.address %}
+Address = {{ i }}
 {% endfor %}
+{% endif %}
+{% if _adapter.dns | length > 0 %}
+{% for i in dns.address %}
+DNS = {{ i }}
+{% endfor %}
+{% endif %}
+{% if _adapter.mtu != 0 %}
+MTU = {{ _adapter.mtu }}
+{% endif %}
+Table = {{ _adapter.table }}
+{% if _adapter.pre_up | length > 0 %}
+{% for i in _adapter.pre_up %}
+PreUp = {{ i }}
+{% endfor %}
+{% endif %}
+{% if _adapter.post_up | length > 0 %}
+{% for i in _adapter.post_up %}
+PostUp = {{ i }}
+{% endfor %}
+{% endif %}
+{% if _adapter.pre_down | length > 0 %}
+{% for i in _adapter.pre_down %}
+PreDown = {{ i }}
+{% endfor %}
+{% endif %}
+{% if _adapter.post_down | length > 0 %}
+{% for i in _adapter.post_down %}
+PostDown = {{ i }}
+{% endfor %}
+{% endif %}
+SaveConfig = {{ _adapter.save_config | string | capitalize }}
 
-{%- for peer in peers %}
+{% if _adapter_peers | length > 0%}
+{% for peer in _adapter_peers %}
 [Peer]
-{% for key, value in peer.items() -%}
-{{ key }} = {{ value }}
-{% endfor -%}
+PublicKey = {{ peer.public_key }}
+{% if peer.preshared_key | length > 0 %}
+PresharedKey = {{ peer.preshared_key }}
+{% endif %}
+{% if peer.allowed_ips | length > 0 %}
+{% for cidr in peer.allowed_ips %}
+AllowedIPs = {{ cidr }}
 {% endfor %}
+{% endif %}
+{% if peer.endpoint | length > 0 %}
+Endpoint = {{ peer.endpoint.host }}:{{ peer.endpoint.port }}
+{% endif %}
+{% if peer.persistent_keepalive > 0 %}
+PersistentKeepalive = {{ peer.persistent_keepalive }}
+{% endif %}
+{% endfor %}
+{% endif %}

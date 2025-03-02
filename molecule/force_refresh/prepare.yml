@@ -1,0 +1,21 @@
+---
+# yamllint disable rule:line-length
+- name: 'Force refresh | prepare'
+  hosts: 'all'
+  gather_facts: false
+  tasks:
+    - name: 'Default | prepare | create package directory'
+      ansible.builtin.file:
+        path: '/etc/wireguard'
+        owner: 'root'
+        group: 'root'
+        mode: '0700'
+        state: 'directory'
+
+    - name: 'Default | prepare | inject original.conf'
+      ansible.builtin.copy:
+        src: 'files/original.conf'
+        dest: '/etc/wireguard/example_present.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0600'

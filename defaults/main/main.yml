@@ -1,24 +1,49 @@
 ---
 ###############################################################################
-# Wireguard Role Configuration
+# Wireguard Service Configuration
 ###############################################################################
 #
 # Reference:
 # * https://wireguard.com
 # * https://github.com/pirate/wireguard-docs
 
-# Enable wireguard-initramfs. This will allow the use of wireguard during the
-# kernel init process (dropbear over wireguard support).
+# Is this role applied to a container?
 #
-# Reference: initramfs.yml
-wireguard_initramfs_enable: false
+# Decision: manual user setting - There is currently no good way to
+#     deterministically and consistently detect if a remote host is a
+#     container outside of common cases.
+#
+# Hosts marked as containers will automatically disable any sysctl changes:
+#   * wireguard_service_ipv4_forwarding_enable
+#   * wireguard_service_ipv6_forwarding_enable
+#
+# Special Case:
+#   * srv_container_enable=true forces wireguard_container_enable=true.
+#
+# Default: False.
+wireguard_container_enable: false
 
-# Enable IP forwarding for wireguard clients. This will enable clients to talk
-# to each other if their wireguard configurations allow them to do so.
-wireguard_ipv4_forwarding: false
-wireguard_ipv6_forwarding: false
+# Enable IPv4 forwarding?
+#
+# Enables clients to talk to each other through wireguard connections if their
+# configs allow them to do so.
+#
+# Default: False (disabled).
+wireguard_service_ipv4_forwarding_enable: false
 
-# Force refresh adapters. This will remove all existing adapters before
-# creating them. If you are connecting to the host over wireguard, this can
-# potentially BREAK YOUR CONNECTION. Useful for renaming or removing adapters.
-wireguard_force_refresh_adapters: false
+# Enable IPv6 forwarding?
+#
+# Enables clients to talk to each other through wireguard connections if their
+# configs allow them to do so.
+#
+# Default: False (disabled).
+wireguard_service_ipv6_forwarding_enable: false
+
+# Force refresh adapters?
+#
+# This will down and remove all existing adapters before creating them. If you
+# are connecting to the host over wireguard, this can potentially BREAK YOUR
+# CONNECTION. Useful for renaming or removing adapters.
+#
+# Default: False.
+wireguard_service_force_refresh_adapters: false

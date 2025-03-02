@@ -6,30 +6,57 @@
 # used on boot, as /boot is generally unencrypted and should be considered
 # compromised/untrusted.
 #
-# Generate keys using wireguard/files/scripts/wggen {HOST}. Store
-# vault-encrypted keys in group_vars so both client and server can be
-# configured without duplication.
+# Initramfs should be enabled in congruence with r_pufky.srv.dropbear.
 #
 # Reference:
 # * https://github.com/r-pufky/wireguard-initramfs
 
-# Wireguard interface name.
-wireguard_boot_interface: 'example_vpn'
+# Enable wireguard-initramfs?
+#
+# Allows for encrypted disk unlocks during boot process using dropbear.
+#
+# Default: False.
+wireguard_initramfs_enable: false
 
-# CIDR wireguard interface address.
-wireguard_boot_interface_address: '172.31.255.10/32'
+# Wireguard-initramfs version.
+#
+# Values:
+#   {VERSION}: Tagged release to use ('2023-10-21').
+#    'latest': Use latest stable release.
+#
+# Default: 'latest'.
+wireguard_initramfs_version: 'latest'
 
-# Peer public key (server's public key). Use vault.
-wireguard_boot_peer_public_key: ''
+# Adapter to use during initramfs.
+#
+# Use adapter from wireguard_adapters[].name.
+#
+# Default: 'initramfs'.
+wireguard_initramfs_adapter: 'initramfs'
 
-# IP:PORT of the peer (server); any reachable IP/DNS.
-wireguard_boot_peer_endpoint: 'wg.example.com:51820'
+# Enable wg-quick for adapter management?
+#
+# wg is used by default and requires no additional dependencies, at the cost of
+# parsing the adapter configuration with a reduced set of options.
+#
+# Enabling will add wg-quick and bash to the initramfs package, enabling full
+# adapter configuration support at the cost of an additional 1.4M of space. See
+# references for configuration file differences.
+#
+# Highly recommend only enabling if basic wg configuration does not meet needs.
+#
+# Default: False.
+wireguard_initramfs_quick_enable: false
 
-# Client Private key (client private key). Use vault.
-wireguard_boot_client_private_key: ''
+# URL to send a web request to set the local datetime.
+#
+# Raspberry Pi's should enable this feature for wireguard-initramfs to work.
+#
+# Default: '' (disabled).
+wireguard_initramfs_datetime_url: ''
 
-# Keepalives. Required to ensure connection for non-exposed ports.
-wireguard_boot_persistent_keepalives: '25'
+# Persist (do not down) interface after initramfs exits? Default: False.
+wireguard_initramfs_persistent_enable: false
 
-# CIDR IP's allowed on wireguard connection, typically the peer (server).
-wireguard_boot_allowed_ips: '172.31.255.254/32'
+# Enable debug logging (exposes key material)? Default: False.
+wireguard_initramfs_debug_enable: false
