@@ -30,8 +30,10 @@
     state: 'present'
     reload: true
   loop:
-    - {name: 'net.ipv4.ip_forward', value: '{{ wireguard_service_ipv4_forwarding_enable | int }}'}
+    - {name: 'net.ipv4.conf.all.forwarding', value: '{{ wireguard_service_ipv4_forwarding_enable | int }}'}
+    - {name: 'net.ipv4.conf.default.forwarding', value: '{{ wireguard_service_ipv4_forwarding_enable | bool | int }}'}
     - {name: 'net.ipv6.conf.all.forwarding', value: '{{ wireguard_service_ipv6_forwarding_enable | int }}'}
+    - {name: 'net.ipv6.conf.default.forwarding', value: '{{ wireguard_service_ipv6_forwarding_enable | bool | int }}'}
 
 - name: 'Config | configure wireguard adapters'
   ansible.builtin.include_tasks: 'adapter.yml'

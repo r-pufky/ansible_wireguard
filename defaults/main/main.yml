@@ -2,10 +2,16 @@
 ###############################################################################
 # Wireguard Service Configuration
 ###############################################################################
+# See reference documentation for specific wireguard network configurations.
+# Management of routing table and firewall services should be applied before
+# this role (unless changes can be applied in standard wireguard adapter
+# configurations).
 #
 # Reference:
 # * https://wireguard.com
 # * https://github.com/pirate/wireguard-docs
+# * https://www.procustodibus.com/blog/2021/05/wireguard-ufw/
+# * https://www.procustodibus.com/blog/2021/11/wireguard-nftables/
 
 # Is this role applied to a container?
 #
