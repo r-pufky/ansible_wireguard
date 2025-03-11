@@ -22,7 +22,7 @@ wireguard_initramfs_enable: false
 #
 # Values:
 #   {VERSION}: Tagged release to use ('2025-03-02').
-#    'latest': Use latest stable release.
+#      latest: Use latest stable release.
 #
 # Default: 'latest'.
 wireguard_initramfs_version: 'latest'
