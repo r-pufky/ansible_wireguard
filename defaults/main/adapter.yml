@@ -60,22 +60,22 @@
 #     pre_up: list of str - bash script snippet before setting up adapter;
 #           executed in order.
 #         Special Case:
-#           '%i': expanded to INTERFACE.
+#           %i: expanded to INTERFACE.
 #         Default: [] (no pre-up scripts).
 #     post_up: list of str - bash script snippet after setting up adapter;
 #           executed in order.
 #         Special Case:
-#           '%i': expanded to INTERFACE.
+#           %i: expanded to INTERFACE.
 #         Default: [] (no post-up scripts).
 #     pre_down: list of str - bash script snippet before turning down adapter;
 #           executed in order.
 #         Special Case:
-#           '%i': expanded to INTERFACE.
+#           %i: expanded to INTERFACE.
 #         Default: [] (no pre-down scripts).
 #     post_down: list of str - bash script snippet before turning down adapter;
 #           executed in order.
 #         Special Case:
-#           '%i': expanded to INTERFACE.
+#           %i: expanded to INTERFACE.
 #         Default: [] (no pre-down scripts).
 #     save_config: bool - overwrite interface config on shutdown?
 #         Default: False.
@@ -88,8 +88,8 @@
 #               all traffic is blocked.
 #             Values:
 #                    {CIDR}: IPv4/IPv6 CIDR notation.
-#               '0.0.0.0/0': Match all IPv4 addresses.
-#                    '::/0': Match all IPv6 addresses.
+#                 0.0.0.0/0: Match all IPv4 addresses.
+#                      ::/0: Match all IPv6 addresses.
 #         endpoint: dict - public peer endpoint.
 #           host: str - host address.
 #               Values:
