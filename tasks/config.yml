@@ -39,6 +39,6 @@
   ansible.builtin.include_tasks: 'adapter.yml'
   loop: '{{ wireguard_adapters }}'
   loop_control:
-    loop_var: adapter
+    loop_var: 'adapter'
     label: '{{ adapter.name }}'
   no_log: true  # wg private key
