@@ -49,7 +49,7 @@ Apply the base role
     name: 'r_pufky.srv.wireguard'
 ```
 
-### Wireguard-initramfs is support as well.
+### Wireguard-initramfs is supported as well.
 Download and install the latest wireguard-initramfs release for use with
 `r_pufky.srv.dropbear` to remotely unlocked encrypted disks.
 
