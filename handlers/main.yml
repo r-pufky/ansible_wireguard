@@ -4,9 +4,11 @@
 ###############################################################################
 
 - name: 'Handlers | update-initramfs'
+  listen: 'Handlers | update wireguard'
   ansible.builtin.command: 'update-initramfs -u'
   changed_when: true
 
 - name: 'Handlers | update-grub'
+  listen: 'Handlers | update wireguard'
   ansible.builtin.command: 'update-grub'
   changed_when: true
