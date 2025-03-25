@@ -19,8 +19,10 @@ provisioner:
       all:
         srv_container_enable: true
         github_testing_enable: true
-        github_testing_version: '2025-03-01'
-        github_testing_archive: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
+        github_testing_versions:
+          - '2025-03-01'
+        github_testing_archives:
+          - '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
         wireguard_service_force_refresh_adapters: true
         wireguard_adapters:
           - name: 'example_present'
