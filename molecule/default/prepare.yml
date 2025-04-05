@@ -1,6 +1,36 @@
 ---
 # yamllint disable rule:line-length
 - name: 'Default | prepare'
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: 'Default | prepare | generate cache location'
+      ansible.builtin.set_fact:
+        _test_cache: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+
+    - name: 'Default | prepare | create cache'
+      ansible.builtin.file:
+        path: '{{ _test_cache }}'
+        mode: '0755'
+        state: 'directory'
+
+    - name: 'Default | prepare | check 2025-03-02'
+      ansible.builtin.stat:
+        path: '{{ _test_cache }}/2025-03-02.tar.gz'
+      register: _test_prepare
+
+    - name: 'Default | prepare | cache 2025-03-02'
+      when: not _test_prepare.stat.exists
+      ansible.builtin.get_url:
+        url: 'https://github.com/r-pufky/wireguard-initramfs/archive/refs/tags/2025-03-02.tar.gz'
+        dest: '{{ _test_cache }}/2025-03-02.tar.gz'
+        mode: '0640'
+      retries: 5
+      delay: 5
+
+
+- name: 'Default | prepare'
   hosts: 'all'
   gather_facts: false
   become: true

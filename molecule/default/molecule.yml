@@ -34,9 +34,9 @@ provisioner:
       all:
         github_testing_enable: true
         github_testing_versions:
-          - '2025-03-01'
+          - '2025-03-02'
         github_testing_archives:
-          - '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
+          - '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache/2025-03-02.tar.gz'
         wireguard_initramfs_enable: true
         wireguard_initramfs_adapter: 'example_enabled'
         wireguard_service_ipv4_forwarding_enable: true
