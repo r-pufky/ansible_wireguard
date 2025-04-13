@@ -12,6 +12,7 @@
 
     - name: 'Default | verify | assert IPv4 forwarding set'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_wireguard_ipv4_forwarding.stdout | int == 1
         fail_msg: >
@@ -25,6 +26,7 @@
 
     - name: 'Default | verify | assert IPv6 forwarding set'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_wireguard_ipv6_forwarding.stdout | int == 1
         fail_msg: >
@@ -44,6 +46,7 @@
 
     - name: 'Default | verify | assert example_disabled.conf'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_example_disabled.changed
         fail_msg: >
@@ -57,6 +60,7 @@
 
     - name: 'Default | verify | assert example_absent.conf'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_example_absent.stat.exists
         fail_msg: >
@@ -75,6 +79,7 @@
 
     - name: 'Default | verify | assert example_present.conf'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_example_present.changed
         fail_msg: >
@@ -94,6 +99,7 @@
 
     - name: 'Default | verify | assert example_no_endpoint.conf'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_no_endpoint.changed
         fail_msg: >
@@ -113,6 +119,7 @@
 
     - name: 'Default | verify | assert example_enabled.conf'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_example_enabled.changed
         fail_msg: >
@@ -126,6 +133,7 @@
 
     - name: 'Default | verify | assert example_enabled active'
       ansible.builtin.assert:
+        quiet: true
         that:
           - _test_wireguard_adapter_status.rc == 0
         fail_msg: 'wg show example_enabled should display configured adapter.'
@@ -143,6 +151,7 @@
 
     - name: 'Default | verify | assert initramfs'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_initramfs.changed
         fail_msg: >

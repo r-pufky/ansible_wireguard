@@ -48,19 +48,19 @@
   block:
     - name: 'Install | wireguard-initramfs | {{ wireguard_initramfs_version }}'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.github'
+        name: 'r_pufky.srv.repo'
       vars:
-        github_repo_owner: '{{ wireguard_role_github_owner }}'
-        github_repo_repo: '{{ wireguard_role_github_repo }}'
-        github_repo_release: '{{ wireguard_initramfs_version }}'
-        github_repo_archive_type: '{{ wireguard_role_github_repo_archive_type }}'
-        github_extract_dest: '{{ wireguard_role_github_extract_dest }}'
-        github_extract_symlink_target: '{{ wireguard_role_github_extract_symlink_target }}'
-        github_extract_mode: 'a-st,o-rwx'
-        github_extract_extra_opts: '--strip-components=1'
+        repo_release_owner: '{{ wireguard_role_repo_release_owner }}'
+        repo_release_repo: '{{ wireguard_role_repo_release_repo }}'
+        repo_release_tag: '{{ wireguard_initramfs_version }}'
+        repo_release_asset: '{{ wireguard_role_repo_release_asset }}'
+        repo_extract_dir: '{{ wireguard_role_repo_extract_dir }}'
+        repo_extract_symlink_target: '{{ wireguard_role_repo_extract_symlink_target }}'
+        repo_extract_mode: 'a-st,o-rwx'
+        repo_extract_extra_opts: '--strip-components=1'
 
     - name: 'Install | wireguard-initramfs | make'
-      when: _github_changed
+      when: _repo_changed
       ansible.builtin.command: 'make install'
       become: true
       args:

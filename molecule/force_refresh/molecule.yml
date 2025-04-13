@@ -18,11 +18,11 @@ provisioner:
     group_vars:
       all:
         srv_container_enable: true
-        github_testing_enable: true
-        github_testing_versions:
-          - '2025-03-01'
-        github_testing_archives:
-          - '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
+        repo_testing_enable: true
+        repo_testing_versions:
+          - comment: 'default'
+            version: '2025-03-01'
+            asset: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
         wireguard_service_force_refresh_adapters: true
         wireguard_adapters:
           - name: 'example_present'

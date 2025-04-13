@@ -17,6 +17,7 @@
 
     - name: 'Force refresh | verify | assert example_present.conf'
       ansible.builtin.assert:
+        quiet: true
         that:
           - not _test_wireguard_example_present.changed
         fail_msg: >
