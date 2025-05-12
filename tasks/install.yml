@@ -13,6 +13,7 @@
 # Reference:
 # * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#add-wireguard-kernel-support
 # * https://nixvsevil.com/posts/wireguard-in-proxmox-lxc/
+# yamllint enable rule:line-length
 
 - name: 'Install | packages'
   ansible.builtin.include_role:
@@ -20,7 +21,11 @@
   vars:
     apt_packages:
       - '{{ wireguard_role_packages }}'
-      - '{{ wireguard_role_initramfs_packages if wireguard_initramfs_enable else [] }}'
+      - '{{
+          wireguard_role_initramfs_packages
+          if wireguard_initramfs_enable else
+          []
+        }}'
     apt_package_update_cache: true
 
 # TODO(role): Update for PVE8.x and enable.
@@ -55,7 +60,7 @@
         repo_release_tag: '{{ wireguard_initramfs_version }}'
         repo_release_asset: '{{ wireguard_role_repo_release_asset }}'
         repo_extract_dir: '{{ wireguard_role_repo_extract_dir }}'
-        repo_extract_symlink_target: '{{ wireguard_role_repo_extract_symlink_target }}'
+        repo_extract_symlink: '{{ wireguard_role_repo_extract_symlink }}'
         repo_extract_mode: 'a-st,o-rwx'
         repo_extract_extra_opts: '--strip-components=1'
 

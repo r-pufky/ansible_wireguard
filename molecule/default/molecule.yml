@@ -1,17 +1,22 @@
 ---
 # yamllint disable rule:line-length
-# Network level testing requires VMs for kernel namespace and systemd
-# networking without affecting host.
+###############################################################################
+# Default
+###############################################################################
+# Default configuration is deployed successfully. Network level testing
+# requires VMs for kernel namespace and systemd networking without affecting
+# host.
 #
 # Invalid wireguard configs (e.g. user error in adapter configuration) are not
 # tested; only that settings as specified are deployed correctly.
 #
 # Keys are well-known example keys from wireguard-initramfs.
 #
-# Confirm:
+# Tests:
 # * initramfs not installed.
 # * Wireguard packages are installed, no adapters created.
 # * confirm that template renders are correct.
+
 dependency:
   name: 'galaxy'
 driver:

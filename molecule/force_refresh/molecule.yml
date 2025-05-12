@@ -1,7 +1,13 @@
 ---
 # yamllint disable rule:line-length
-# Confirm:
+###############################################################################
+# Force Refresh
+###############################################################################
+# Adapters can be force removed and re-created.
+#
+# Tests:
 # * force refreshing adapters removes and re-creates adapters without failing.
+
 dependency:
   name: 'galaxy'
 driver:

@@ -7,6 +7,9 @@
 # this role (unless changes can be applied in standard wireguard adapter
 # configurations).
 #
+# Set repo_host_access_token if github API is rated limited. See
+# r_pufky.srv.repo.
+#
 # Reference:
 # * https://wireguard.com
 # * https://github.com/pirate/wireguard-docs

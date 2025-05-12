@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Wireguard Role Options
 ###############################################################################
@@ -30,4 +29,5 @@ wireguard_role_repo_release_owner: 'r-pufky'
 wireguard_role_repo_release_repo: 'wireguard-initramfs'
 wireguard_role_repo_release_asset: '{VERSION}.tar.gz'
 wireguard_role_repo_extract_dir: '/opt/wireguard-initramfs'
-wireguard_role_repo_extract_symlink_target: '/opt/wireguard-initramfs/wireguard-initramfs'
+wireguard_role_repo_extract_symlink:
+  '/opt/wireguard-initramfs/wireguard-initramfs'

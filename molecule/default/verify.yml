@@ -33,98 +33,65 @@
           sysctl should report net.ipv6.conf.all.forwarding=1
           ({{ _test_wireguard_ipv6_forwarding.stdout }}).
 
-    - name: 'Default | verify | query example_disabled.conf'
-      ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
-        dest: '/etc/wireguard/example_disabled.conf'
-        owner: 'root'
-        group: 'root'
-        mode: '0600'
-      check_mode: true
-      diff: true
-      register: _test_wireguard_example_disabled
+    - name: 'Default | verify | example_disabled.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | example_disabled.conf'
+        test_src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        test_file: '/etc/wireguard/example_disabled.conf'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0600'
 
-    - name: 'Default | verify | assert example_disabled.conf'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_example_disabled.changed
-        fail_msg: >
-          /etc/wireguard/example_disabled.conf is not in expected format:
-          {{ _test_wireguard_example_disabled.diff }}.
+    - name: 'Default | verify | example_absent.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'file.yml'
+      vars:
+        test_name: 'Default | verify | example_absent.conf'
+        test_file: '/etc/wireguard/example_absent.conf'
+        test_owner: '{{ omit }}'
+        test_group: '{{ omit }}'
+        test_mode: '{{ omit }}'
+        test_state: 'absent'
 
-    - name: 'Default | verify | query example_absent.conf'
-      ansible.builtin.stat:
-        path: '/etc/wireguard/example_absent.conf'
-      register: _test_wireguard_example_absent
+    - name: 'Default | verify | example_present.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | example_present.conf'
+        test_src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        test_file: '/etc/wireguard/example_present.conf'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0600'
 
-    - name: 'Default | verify | assert example_absent.conf'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_example_absent.stat.exists
-        fail_msg: >
-          /etc/wireguard/example_absent.conf should have been removed.
+    - name: 'Default | verify | example_no_endpoint.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | example_no_endpoint.conf'
+        test_src: 'files/no_endpoint.conf'
+        test_file: '/etc/wireguard/example_no_endpoint.conf'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0600'
 
-    - name: 'Default | verify | query example_present.conf'
-      ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
-        dest: '/etc/wireguard/example_present.conf'
-        owner: 'root'
-        group: 'root'
-        mode: '0600'
-      check_mode: true
-      diff: true
-      register: _test_wireguard_example_present
-
-    - name: 'Default | verify | assert example_present.conf'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_example_present.changed
-        fail_msg: >
-          /etc/wireguard/example_present.conf is not in expected format:
-          {{ _test_wireguard_example_present.diff }}.
-
-    - name: 'Default | verify | query example_no_endpoint.conf'
-      ansible.builtin.copy:
-        src: 'files/no_endpoint.conf'
-        dest: '/etc/wireguard/example_no_endpoint.conf'
-        owner: 'root'
-        group: 'root'
-        mode: '0600'
-      check_mode: true
-      diff: true
-      register: _test_wireguard_no_endpoint
-
-    - name: 'Default | verify | assert example_no_endpoint.conf'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_no_endpoint.changed
-        fail_msg: >
-          /etc/wireguard/example_no_endpoint.conf is not in expected format:
-          {{ _test_wireguard_no_endpoint.diff }}.
-
-    - name: 'Default | verify | query example_enabled.conf'
-      ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
-        dest: '/etc/wireguard/example_enabled.conf'
-        owner: 'root'
-        group: 'root'
-        mode: '0600'
-      check_mode: true
-      diff: true
-      register: _test_wireguard_example_enabled
-
-    - name: 'Default | verify | assert example_enabled.conf'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_example_enabled.changed
-        fail_msg: >
-          /etc/wireguard/example_enabled.conf is not in expected format:
-          {{ _test_wireguard_example_enabled.diff }}.
+    - name: 'Default | verify | example_enabled.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | example_enabled.conf'
+        test_src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        test_file: '/etc/wireguard/example_enabled.conf'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0600'
 
     - name: 'Default | verify | query example_enabled status'
       ansible.builtin.command: 'wg show example_enabled'
@@ -138,22 +105,14 @@
           - _test_wireguard_adapter_status.rc == 0
         fail_msg: 'wg show example_enabled should display configured adapter.'
 
-    - name: 'Default | verify | query initramfs'
-      ansible.builtin.copy:
-        src: 'files/initramfs'
-        dest: '/etc/wireguard/initramfs'
-        owner: 'root'
-        group: 'root'
-        mode: '0644'
-      check_mode: true
-      diff: true
-      register: _test_wireguard_initramfs
-
-    - name: 'Default | verify | assert initramfs'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_initramfs.changed
-        fail_msg: >
-          /etc/wireguard/initramfs is not in expected format:
-          {{ _test_wireguard_initramfs.diff }}.
+    - name: 'Default | verify | initramfs'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Default | verify | example_enabled.conf'
+        test_src: 'files/initramfs'
+        test_file: '/etc/wireguard/initramfs'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0644'

@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Remove Interface
 ###############################################################################
@@ -10,7 +9,11 @@
 #   path: str - absolute path to the adapter configuration file.
 
 - name: 'Remove | stop adapter'
-  ansible.builtin.command: 'wg-quick down {{ path | basename | splitext | first }}'
+  ansible.builtin.command:
+    argv:
+      - 'wg-quick'
+      - 'down'
+      - '{{ path | basename | splitext | first }}'
   changed_when: false
   failed_when: false
 

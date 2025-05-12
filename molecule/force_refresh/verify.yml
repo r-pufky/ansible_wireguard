@@ -4,22 +4,14 @@
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Force refresh | verify | query example_present.conf'
-      ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
-        dest: '/etc/wireguard/example_present.conf'
-        owner: 'root'
-        group: 'root'
-        mode: '0600'
-      check_mode: true
-      diff: true
-      register: _test_wireguard_example_present
-
-    - name: 'Force refresh | verify | assert example_present.conf'
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - not _test_wireguard_example_present.changed
-        fail_msg: >
-          /etc/wireguard/example_present.conf is not in expected format:
-          {{ _test_wireguard_example_present.diff }}.
+    - name: 'Force refresh | verify | example_present.conf'
+      ansible.builtin.include_role:
+        name: 'r_pufky.srv.tests'
+        tasks_from: 'copy.yml'
+      vars:
+        test_name: 'Force refresh | verify | example_present.conf'
+        test_src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        test_file: '/etc/wireguard/example_present.conf'
+        test_owner: 'root'
+        test_group: 'root'
+        test_mode: '0600'

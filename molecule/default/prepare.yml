@@ -7,7 +7,8 @@
   tasks:
     - name: 'Default | prepare | generate cache location'
       ansible.builtin.set_fact:
-        _test_cache: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+        _test_cache:
+          '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
 
     - name: 'Default | prepare | create cache'
       ansible.builtin.file:
@@ -28,7 +29,6 @@
         mode: '0640'
       retries: 5
       delay: 5
-
 
 - name: 'Default | prepare'
   hosts: 'all'

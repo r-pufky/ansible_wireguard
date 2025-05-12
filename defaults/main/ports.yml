@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Ports Configuration
 ###############################################################################
@@ -11,4 +10,8 @@
 # * https://github.com/r-pufky/ansible_ufw
 
 wireguard_ports:
-  - {proto: 'udp', from_ip: 'any', to_port: 51820, direction: 'in', comment: 'wireguard service'}
+  - proto: 'udp'
+    from_ip: 'any'
+    to_port: 51820
+    direction: 'in'
+    comment: 'wireguard service'

@@ -7,3 +7,4 @@ roles:
   # https://github.com/r-pufky/ansible_collection_srv
   - name: 'r_pufky.srv.apt'
   - name: 'r_pufky.srv.repo'
+  - name: 'r_pufky.srv.tests'

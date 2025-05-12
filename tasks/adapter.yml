@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Configure Wireguard Adapter
 ###############################################################################
@@ -34,7 +33,10 @@
 - name: 'Adapter | sanitize peers'
   when: _adapter.peers | length > 0
   ansible.builtin.set_fact:
-    _adapter_peers: '{{ _adapter_peers | default([]) + [wireguard_role_template_peers | combine(item)] }}'
+    _adapter_peers: '{{
+        _adapter_peers | default([]) +
+        [wireguard_role_template_peers | combine(item)]
+      }}'
   loop: '{{ _adapter.peers }}'
   loop_control:
     label: '{{ item.public_key }}'
