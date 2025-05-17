@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Default
 ###############################################################################
@@ -41,7 +40,10 @@ provisioner:
         repo_testing_versions:
           - comment: 'default'
             version: '2025-03-02'
-            asset: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache/2025-03-02.tar.gz'
+            asset: '{{
+                lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+                "/molecule/cache/2025-03-02.tar.gz"
+              }}'
         wireguard_initramfs_enable: true
         wireguard_initramfs_adapter: 'example_enabled'
         wireguard_service_ipv4_forwarding_enable: true

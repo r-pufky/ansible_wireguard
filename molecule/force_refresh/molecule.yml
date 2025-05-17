@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Force Refresh
 ###############################################################################
@@ -23,12 +22,15 @@ provisioner:
   inventory:
     group_vars:
       all:
-        srv_container_enable: true
+        deb_container_enable: true
         repo_testing_enable: true
         repo_testing_versions:
           - comment: 'default'
             version: '2025-03-01'
-            asset: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/2025-03-01.tar.gz'
+            asset: '{{
+                lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+                "/molecule/files/2025-03-01.tar.gz"
+              }}'
         wireguard_service_force_refresh_adapters: true
         wireguard_adapters:
           - name: 'example_present'

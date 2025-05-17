@@ -6,7 +6,7 @@
 # used on boot, as /boot is generally unencrypted and should be considered
 # compromised/untrusted.
 #
-# Initramfs should be enabled in congruence with r_pufky.srv.dropbear.
+# Initramfs should be enabled in congruence with r_pufky.deb.dropbear.
 #
 # Reference:
 # * https://github.com/r-pufky/wireguard-initramfs

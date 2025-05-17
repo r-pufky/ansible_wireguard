@@ -1,6 +1,6 @@
 ---
-- name: 'Force wireguard_container_enable=true (srv_container_enable)'
-  when: srv_container_enable | default(false)
+- name: 'Force wireguard_container_enable=true (deb_container_enable)'
+  when: deb_container_enable | default(false)
   ansible.builtin.set_fact:
     wireguard_container_enable: true
 

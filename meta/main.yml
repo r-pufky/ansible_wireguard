@@ -1,5 +1,6 @@
 ---
 galaxy_info:
+  role_name: 'wireguard'
   author: 'r_pufky'
   description: 'Wireguard'
   company: 'N/A'

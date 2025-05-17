@@ -22,7 +22,7 @@
     that:
       - adapter.name | length > 0
       - adapter.private_key | length > 0
-    fail_msg: 'Adapter must have name and private_key defined.'
+    fail_msg: '✘ Adapter must have name and private_key defined.'
 
 - name: 'Adapter | sanitize adapter'
   ansible.builtin.set_fact:

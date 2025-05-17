@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Force refresh | prepare'
   hosts: 'all'
   gather_facts: false

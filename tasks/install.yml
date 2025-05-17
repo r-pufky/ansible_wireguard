@@ -17,7 +17,7 @@
 
 - name: 'Install | packages'
   ansible.builtin.include_role:
-    name: 'r_pufky.srv.apt'
+    name: 'r_pufky.deb.apt'
   vars:
     apt_packages:
       - '{{ wireguard_role_packages }}'
@@ -53,7 +53,7 @@
   block:
     - name: 'Install | wireguard-initramfs | {{ wireguard_initramfs_version }}'
       ansible.builtin.include_role:
-        name: 'r_pufky.srv.repo'
+        name: 'r_pufky.deb.repo'
       vars:
         repo_release_owner: '{{ wireguard_role_repo_release_owner }}'
         repo_release_repo: '{{ wireguard_role_repo_release_repo }}'

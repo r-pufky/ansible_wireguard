@@ -8,7 +8,7 @@
 # configurations).
 #
 # Set repo_host_access_token if github API is rated limited. See
-# r_pufky.srv.repo.
+# r_pufky.deb.repo.
 #
 # Reference:
 # * https://wireguard.com
@@ -27,7 +27,7 @@
 #   * wireguard_service_ipv6_forwarding_enable
 #
 # Special Case:
-#   * srv_container_enable=true forces wireguard_container_enable=true.
+#   * deb_container_enable=true forces wireguard_container_enable=true.
 #
 # Default: False.
 wireguard_container_enable: false

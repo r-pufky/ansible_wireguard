@@ -2,7 +2,7 @@
 ###############################################################################
 # Ports Configuration
 ###############################################################################
-# Manage firewall with r_pufky.srv.ufw.
+# Manage firewall with r_pufky.deb.ufw.
 #
 # Port exposure is only required for wireguard servers accepting connections.
 #

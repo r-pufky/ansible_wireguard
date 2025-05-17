@@ -1,5 +1,4 @@
 ---
-# yamllint disable rule:line-length
 - name: 'Default | prepare'
   hosts: 127.0.0.1
   connection: local
@@ -24,7 +23,7 @@
     - name: 'Default | prepare | cache 2025-03-02'
       when: not _test_prepare.stat.exists
       ansible.builtin.get_url:
-        url: 'https://github.com/r-pufky/wireguard-initramfs/archive/refs/tags/2025-03-02.tar.gz'
+        url: 'https://github.com/r-pufky/wireguard-initramfs/archive/refs/tags/2025-03-02.tar.gz'  # yamllint disable-line rule:line-length
         dest: '{{ _test_cache }}/2025-03-02.tar.gz'
         mode: '0640'
       retries: 5
@@ -45,7 +44,10 @@
 
     - name: 'Default | prepare | inject example_disabled.conf'
       ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        src: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/files/adapter.conf"
+          }}'
         dest: '/etc/wireguard/example_disabled.conf'
         owner: 'root'
         group: 'root'
@@ -53,7 +55,10 @@
 
     - name: 'Default | prepare | inject example_absent.conf'
       ansible.builtin.copy:
-        src: '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/files/adapter.conf'
+        src: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/files/adapter.conf"
+          }}'
         dest: '/etc/wireguard/example_absent.conf'
         owner: 'root'
         group: 'root'
