@@ -10,10 +10,11 @@
           '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
 
     - name: 'Default | prepare | create cache'
-      ansible.builtin.file:
-        path: '{{ _test_cache }}'
-        mode: '0755'
-        state: 'directory'
+      ansible.builtin.include_role:
+        name: 'r_pufky.lib.tests'
+        tasks_from: 'create_cache.yml'
+      vars:
+        test_name: 'Default | prepare | create cache'
 
     - name: 'Default | prepare | check 2025-03-02'
       ansible.builtin.stat:
