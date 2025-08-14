@@ -1,36 +1,35 @@
 ---
-# yamllint disable rule:line-length
-- name: 'Default | verify'
+- name: 'Verify'
   hosts: 'all'
   gather_facts: false
   become: true
   tasks:
-    - name: 'Default | verify | net.ipv4.ip_forward'
+    - name: 'Verify | net.ipv4.ip_forward'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'sysctl.yml'
       vars:
-        test_name: 'Default | verify | net.ipv4.ip_forward'
+        test_name: 'Verify | net.ipv4.ip_forward'
         test_option: 'net.ipv4.ip_forward'
         test_value: '1'
-        test_diff: false
+        test_diff: true
 
-    - name: 'Default | verify | net.ipv6.conf.all.forwarding'
+    - name: 'Verify | net.ipv6.conf.all.forwarding'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'sysctl.yml'
       vars:
-        test_name: 'Default | verify | net.ipv6.conf.all.forwarding'
+        test_name: 'Verify | net.ipv6.conf.all.forwarding'
         test_option: 'net.ipv6.conf.all.forwarding'
         test_value: '1'
-        test_diff: false
+        test_diff: true
 
-    - name: 'Default | verify | example_disabled.conf'
+    - name: 'Verify | example_disabled.conf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | example_disabled.conf'
+        test_name: 'Verify | example_disabled.conf'
         test_src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
@@ -39,25 +38,27 @@
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0600'
+        test_diff: true
 
-    - name: 'Default | verify | example_absent.conf'
+    - name: 'Verify | example_absent.conf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'file.yml'
       vars:
-        test_name: 'Default | verify | example_absent.conf'
+        test_name: 'Verify | example_absent.conf'
         test_file: '/etc/wireguard/example_absent.conf'
         test_owner: '{{ omit }}'
         test_group: '{{ omit }}'
         test_mode: '{{ omit }}'
         test_state: 'absent'
+        test_diff: true
 
-    - name: 'Default | verify | example_present.conf'
+    - name: 'Verify | example_present.conf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | example_present.conf'
+        test_name: 'Verify | example_present.conf'
         test_src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
@@ -66,25 +67,27 @@
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0600'
+        test_diff: true
 
-    - name: 'Default | verify | example_no_endpoint.conf'
+    - name: 'Verify | example_no_endpoint.conf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | example_no_endpoint.conf'
+        test_name: 'Verify | example_no_endpoint.conf'
         test_src: 'files/no_endpoint.conf'
         test_file: '/etc/wireguard/example_no_endpoint.conf'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0600'
+        test_diff: true
 
-    - name: 'Default | verify | example_enabled.conf'
+    - name: 'Verify | example_enabled.conf'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | example_enabled.conf'
+        test_name: 'Verify | example_enabled.conf'
         test_src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
@@ -93,13 +96,14 @@
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0600'
+        test_diff: true
 
-    - name: 'Default | verify | query example_enabled status'
+    - name: 'Verify | query example_enabled status'
       ansible.builtin.command: 'wg show example_enabled'
       changed_when: false
       register: _test_wireguard_adapter_status
 
-    - name: 'Default | verify | assert example_enabled active'
+    - name: 'Verify | assert example_enabled active'
       ansible.builtin.assert:
         quiet: true
         that:
@@ -107,14 +111,15 @@
         fail_msg: >
           ✘ wg show example_enabled should display configured adapter.
 
-    - name: 'Default | verify | initramfs'
+    - name: 'Verify | initramfs'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'copy.yml'
       vars:
-        test_name: 'Default | verify | example_enabled.conf'
+        test_name: 'Verify | example_enabled.conf'
         test_src: 'files/initramfs'
         test_file: '/etc/wireguard/initramfs'
         test_owner: 'root'
         test_group: 'root'
         test_mode: '0644'
+        test_diff: true

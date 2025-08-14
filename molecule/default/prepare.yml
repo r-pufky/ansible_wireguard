@@ -1,27 +1,27 @@
 ---
-- name: 'Default | prepare'
+- name: 'Prepare'
   hosts: 127.0.0.1
   connection: local
   gather_facts: false
   tasks:
-    - name: 'Default | prepare | generate cache location'
+    - name: 'Prepare | generate cache location'
       ansible.builtin.set_fact:
         _test_cache:
           '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
 
-    - name: 'Default | prepare | create cache'
+    - name: 'Prepare | create cache'
       ansible.builtin.include_role:
         name: 'r_pufky.lib.tests'
         tasks_from: 'create_cache.yml'
       vars:
-        test_name: 'Default | prepare | create cache'
+        test_name: 'Prepare | create cache'
 
-    - name: 'Default | prepare | check 2025-03-02'
+    - name: 'Prepare | check 2025-03-02'
       ansible.builtin.stat:
         path: '{{ _test_cache }}/2025-03-02.tar.gz'
       register: _test_prepare
 
-    - name: 'Default | prepare | cache 2025-03-02'
+    - name: 'Prepare | cache 2025-03-02'
       when: not _test_prepare.stat.exists
       ansible.builtin.get_url:
         url: 'https://github.com/r-pufky/wireguard-initramfs/archive/refs/tags/2025-03-02.tar.gz'  # yamllint disable-line rule:line-length
@@ -30,12 +30,12 @@
       retries: 5
       delay: 5
 
-- name: 'Default | prepare'
+- name: 'Prepare'
   hosts: 'all'
   gather_facts: false
   become: true
   tasks:
-    - name: 'Default | prepare | create package directory'
+    - name: 'Prepare | create package directory'
       ansible.builtin.file:
         path: '/etc/wireguard'
         owner: 'root'
@@ -43,7 +43,7 @@
         mode: '0700'
         state: 'directory'
 
-    - name: 'Default | prepare | inject example_disabled.conf'
+    - name: 'Prepare | inject example_disabled.conf'
       ansible.builtin.copy:
         src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
@@ -54,7 +54,7 @@
         group: 'root'
         mode: '0600'
 
-    - name: 'Default | prepare | inject example_absent.conf'
+    - name: 'Prepare | inject example_absent.conf'
       ansible.builtin.copy:
         src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
