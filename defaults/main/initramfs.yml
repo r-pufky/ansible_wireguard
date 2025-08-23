@@ -24,8 +24,8 @@ wireguard_initramfs_enable: false
 #   {VERSION}: Tagged release to use ('2025-03-02').
 #      latest: Use latest stable release.
 #
-# Default: 'latest'.
-wireguard_initramfs_version: 'latest'
+# Default: '2025-03-02'.
+wireguard_initramfs_version: '2025-03-02'
 
 # Adapter to use during initramfs.
 #

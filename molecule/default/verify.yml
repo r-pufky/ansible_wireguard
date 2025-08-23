@@ -108,8 +108,12 @@
         quiet: true
         that:
           - _test_wireguard_adapter_status.rc == 0
-        fail_msg: >
-          ✘ wg show example_enabled should display configured adapter.
+        fail_msg: |
+          ╭───────────────────────────────────────────────────────────────────╮
+          │                                                                   │
+          │   'wg show example_enabled' should display configured adapter.    │
+          │                                                                   │
+          ╰───────────────────────────────────────────────────────────────────╯
 
     - name: 'Verify | initramfs'
       ansible.builtin.include_role:

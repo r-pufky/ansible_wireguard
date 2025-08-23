@@ -49,8 +49,8 @@ provisioner:
                   port: 51820
                 persistent_keepalive: 25
 platforms:
-  - name: 'wireguard-debian-12-force_refresh'
-    image: 'ghcr.io/hifis-net/debian-systemd:12'
+  - name: 'wireguard-debian-13-force_refresh'
+    image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'

@@ -4,8 +4,8 @@
 ###############################################################################
 
 # Last time Wireguard options were validated against a default configuration.
-wireguard_role_validate_date: '2025-02-20'
-wireguard_role_validate_release: 'bookworm'
+wireguard_role_validate_date: '2025-08-22'
+wireguard_role_validate_release: 'trixie'
 
 ###############################################################################
 # APT Packages

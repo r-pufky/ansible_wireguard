@@ -44,4 +44,4 @@
   loop_control:
     loop_var: 'adapter'
     label: '{{ adapter.name }}'
-  no_log: true  # wg private key
+  no_log: true  # WG private key.

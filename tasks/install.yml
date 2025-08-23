@@ -28,7 +28,7 @@
         }}'
     apt_package_update_cache: true
 
-# TODO(role): Update for PVE8.x and enable.
+# TODO(role): Update for PVE8.x+ and enable.
 # - name: 'Install | PVE'
 #   when: _wireguard_is_pve.stat.exists
 #   block:

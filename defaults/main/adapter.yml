@@ -18,12 +18,12 @@
 # wireguard_adapters:
 #     list of dicts - Wireguard adapters.
 #   - name: str - Wireguard interface adapter name ([a-zA-Z0-9_=+.-]{1,15}).
-#     state: str - adapter install state
+#     state: str - Adapter install state.
 #         Values:
-#           present: manage adapter config only.
-#           enabled: manager adapter config and up adapter after changes.
-#          disabled: down adapter and manager adapter config.
-#            absent: down and remove adapter.
+#           present: Manage adapter config only.
+#           enabled: Manager adapter config and up adapter after changes.
+#          disabled: Down adapter and manager adapter config.
+#            absent: Down and remove adapter.
 #         Default: 'present'.
 #     private_key: str - Base64 encoded interface private key. Use 'wg genkey'.
 #     listen_port: int - Listening port.
@@ -33,14 +33,14 @@
 #     fw_mark: str - Firewall mark for outgoing packets.
 #           Values:
 #             0x{HEX}: Use hexadecimal value instead of string value.
-#                   0: disabled (default).
+#                   0: Disabled (default).
 #           Default: 0 (disabled).
-#     address: list of str - interface addresses.
+#     address: list of str - Interface addresses.
 #         Values:
 #           {CIDR}: IPv4/IPv6 CIDR notation.
 #           {IPv4}: IPv4.
 #           {IPv6}: IPv6.
-#     dns: list of str - interface DNS servers.
+#     dns: list of str - Interface DNS servers.
 #         Values:
 #           {FQDN}: Fully qualified domain names.
 #           {HOST}: Partial domain name that can be resolved.
@@ -48,61 +48,61 @@
 #           {IPv6}: IPv6.
 #     mtu: int - MTU for wireguard packets.
 #         Values:
-#           0: disabled (use automatic discovery).
+#           0: Disabled (use automatic discovery).
 #         Default: 0 (use automatic discovery).
-#     table: str - routing table to which routes are added.
+#     table: str - Routing table to which routes are added.
 #         Values:
 #                off: Disables the creation of routes altogether.
 #               auto: Adds routes to the default table and enables special
 #                     handling of default routes (default).
 #            {TABLE}: Table ID to add routes to.
 #         Default: 'auto'.
-#     pre_up: list of str - bash script snippet before setting up adapter;
+#     pre_up: list of str - Bash script snippet before setting up adapter;
 #           executed in order.
 #         Special Case:
-#           %i: expanded to INTERFACE.
+#           %i: Expanded to INTERFACE.
 #         Default: [] (no pre-up scripts).
-#     post_up: list of str - bash script snippet after setting up adapter;
+#     post_up: list of str - Bash script snippet after setting up adapter;
 #           executed in order.
 #         Special Case:
-#           %i: expanded to INTERFACE.
+#           %i: Expanded to INTERFACE.
 #         Default: [] (no post-up scripts).
-#     pre_down: list of str - bash script snippet before turning down adapter;
+#     pre_down: list of str - Bash script snippet before turning down adapter;
 #           executed in order.
 #         Special Case:
-#           %i: expanded to INTERFACE.
+#           %i: Expanded to INTERFACE.
 #         Default: [] (no pre-down scripts).
-#     post_down: list of str - bash script snippet before turning down adapter;
+#     post_down: list of str - Bash script snippet before turning down adapter;
 #           executed in order.
 #         Special Case:
-#           %i: expanded to INTERFACE.
+#           %i: Expanded to INTERFACE.
 #         Default: [] (no pre-down scripts).
-#     save_config: bool - overwrite interface config on shutdown?
+#     save_config: bool - Overwrite interface config on shutdown?
 #         Default: False.
 #     peers:
 #         list of dicts - Wireguard adapter peers.
 #       - public_key: str - Base64 encoded peer public key. Use 'wg genkey'.
 #         preshared_key: str - Base64 preshared key. Use 'wg genpsk'.
 #             Default: '' (disabled).
-#         allowed_ips: list of str - hosts to allow; must be defined otherwise
+#         allowed_ips: list of str - Hosts to allow; must be defined otherwise
 #               all traffic is blocked.
 #             Values:
 #                    {CIDR}: IPv4/IPv6 CIDR notation.
 #                 0.0.0.0/0: Match all IPv4 addresses.
 #                      ::/0: Match all IPv6 addresses.
-#         endpoint: dict - public peer endpoint.
-#           host: str - host address.
+#         endpoint: dict - Public peer endpoint.
+#           host: str - Host address.
 #               Values:
 #                 {FQDN}: Fully qualified domain names.
 #                 {HOST}: Partial domain name that can be resolved.
 #                 {IPv4}: IPv4.
 #                 {IPv6}: IPv6.
-#           port: int - host port.
-#         persistent_keepalive: int - keepalive interval in seconds.
+#           port: int - Host port.
+#         persistent_keepalive: int - Keepalive interval in seconds.
 #           Values:
 #             65535: Max interval.
 #                 1: Min interval.
-#                 0: disabled (default).
+#                 0: Disabled (default).
 #           Default: 0 (disabled).
 #
 # wireguard_adapters:  # example 'server' endpoint.

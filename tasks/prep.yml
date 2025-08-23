@@ -14,7 +14,12 @@
     quiet: true
     that:
       - ansible_kernel is version("5.6", ">")
-    fail_msg: '✘ Only kernel versions 5.6+ are supported.'
+    fail_msg: |
+      ╭───────────────────────────────────────────────────────────────────╮
+      │                                                                   │
+      │             Only kernel versions 5.6+ are supported.              │
+      │                                                                   │
+      ╰───────────────────────────────────────────────────────────────────╯
 
 - name: 'Prep | query for PVE'
   ansible.builtin.stat:
@@ -26,4 +31,9 @@
     quiet: true
     that:
       - not _wireguard_is_pve.stat.exists
-    fail_msg: '✘ PVE cluster node deployments are currently disabled.'
+    fail_msg: |
+      ╭───────────────────────────────────────────────────────────────────╮
+      │                                                                   │
+      │       PVE cluster node deployments are currently disabled.        │
+      │                                                                   │
+      ╰───────────────────────────────────────────────────────────────────╯

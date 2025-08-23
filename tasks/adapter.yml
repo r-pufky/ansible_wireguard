@@ -28,7 +28,7 @@
   ansible.builtin.set_fact:
     _adapter: '{{ wireguard_role_template_adapters | combine(adapter) }}'
     _adapter_peers: []
-  no_log: true  # private keys
+  no_log: true  # Private keys.
 
 - name: 'Adapter | sanitize peers'
   when: _adapter.peers | length > 0
@@ -40,7 +40,7 @@
   loop: '{{ _adapter.peers }}'
   loop_control:
     label: '{{ item.public_key }}'
-  no_log: true  # private keys
+  no_log: true  # Private keys.
 
 - name: 'Adapter | down {{ _adapter.name }}'
   when: _adapter.state == 'disabled' or _adapter.state == 'absent'
@@ -63,7 +63,7 @@
     group: 'root'
     mode: '0600'
   register: _wireguard_adapter
-  no_log: true  # private key
+  no_log: true  # Private keys.
 
 - name: 'Adapter | up {{ _adapter.name }}'
   when: _wireguard_adapter.changed and _adapter.state == 'enabled'
