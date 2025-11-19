@@ -20,6 +20,8 @@ All ports and protocols have been defined for the role.
 Read defaults documentation. Store interface keys in `group_vars` so both peers
 can be configured.
 
+[Additional documentation](http://r-pufky.github.io/r-pufky/docs/service/wireguard).
+
 Create a Wireguard VPN with IP forwarding enabled.
 ``` yaml
 wireguard_service_ipv4_forwarding_enable: true
