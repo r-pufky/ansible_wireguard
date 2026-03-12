@@ -4,70 +4,61 @@
 ###############################################################################
 # Sanitize adapter config and render template to remote host. Manager adapter
 # state for specified adapters:
-# * disabled - down only.
-# * enabled - set config and up.
-# * present - set config only.
-# * absent - down and remove config.
+# * disabled - Down only.
+# * enabled - Set config and up.
+# * present - Set config only.
+# * absent - Down and remove config.
 #
 # Args:
-#   adapter: dict - wireguard_adapters item.
+#   adapter: dict - wireguard_cfg_adapters item.
 #
 # Reference:
 # * https://manpages.debian.org/unstable/wireguard-tools/wg-quick.8.en.html
 # * https://manpages.debian.org/unstable/wireguard-tools/wg.8.en.html
 
-- name: 'Adapter | assert required interface options'
+- name: 'Adapter | assert | required options'
   ansible.builtin.assert:
     quiet: true
     that:
       - adapter.name | length > 0
       - adapter.private_key | length > 0
-    fail_msg: '✘ Adapter must have name and private_key defined.'
+    fail_msg: |
 
-- name: 'Adapter | sanitize adapter'
+      ✘ Adapter must have name and private_key defined.
+
+      {{ adapter }}
+
+- name: 'Adapter | fact | parse adapter location'
   ansible.builtin.set_fact:
-    _adapter: '{{ wireguard_role_template_adapters | combine(adapter) }}'
-    _adapter_peers: []
-  no_log: true  # Private keys.
+    wireguard__adapter_file:
+      '{{ wireguard___app._etc_dir ~ "/" ~ adapter.name ~ ".conf" }}'
 
-- name: 'Adapter | sanitize peers'
-  when: _adapter.peers | length > 0
-  ansible.builtin.set_fact:
-    _adapter_peers: '{{
-        _adapter_peers | default([]) +
-        [wireguard_role_template_peers | combine(item)]
-      }}'
-  loop: '{{ _adapter.peers }}'
-  loop_control:
-    label: '{{ item.public_key }}'
-  no_log: true  # Private keys.
-
-- name: 'Adapter | down {{ _adapter.name }}'
-  when: _adapter.state == 'disabled' or _adapter.state == 'absent'
-  ansible.builtin.command: 'wg-quick down {{ _adapter.name }}'
+- name: '{{ "Adapter | wg | stop " ~ adapter.name }}'
+  when: adapter.state == 'disabled' or adapter.state == 'absent'
+  ansible.builtin.command: '{{ "wg-quick down " ~ adapter.name }}'
   changed_when: false
   failed_when: false
 
-- name: 'Adapter | remove {{ _adapter.name }}'
-  when: _adapter.state == 'absent'
+- name: '{{ "Adapter | filesystem | remove " ~ wireguard__adapter_file }}'
+  when: adapter.state == 'absent'
   ansible.builtin.file:
-    path: '/etc/wireguard/{{ _adapter.name }}.conf'
+    path: '{{ wireguard__adapter_file }}'
     state: 'absent'
 
-- name: 'Adapter | config {{ _adapter.name }}'
-  when: _adapter.state == 'present' or _adapter.state == 'enabled'
+- name: '{{  "Adapter | filesystem | set " ~ wireguard__adapter_file }}'
+  when: adapter.state == 'present' or adapter.state == 'enabled'
   ansible.builtin.template:
     src: 'adapter.j2'
-    dest: '/etc/wireguard/{{ _adapter.name }}.conf'
+    dest: '{{ wireguard__adapter_file }}'
     owner: 'root'
     group: 'root'
     mode: '0600'
-  register: _wireguard_adapter
+  register: wireguard__adapter
   no_log: true  # Private keys.
 
-- name: 'Adapter | up {{ _adapter.name }}'
-  when: _wireguard_adapter.changed and _adapter.state == 'enabled'
-  ansible.builtin.service:
-    name: 'wg-quick@{{ _adapter.name }}'
+- name: 'Adapter | systemd | restart {{ adapter.name }}'
+  when: wireguard__adapter.changed and adapter.state == 'enabled'
+  ansible.builtin.systemd:
+    name: 'wg-quick@{{ adapter.name }}'
     state: 'restarted'
     enabled: true

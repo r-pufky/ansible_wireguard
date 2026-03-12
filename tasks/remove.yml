@@ -6,18 +6,15 @@
 # running an error will be raised stopping a non-running adapter - ignore.
 #
 # Args:
-#   path: str - absolute path to the adapter configuration file.
+#   path: str - Absolute path to the adapter configuration file.
+#   adapter: str - Parsed adapter name.
 
-- name: 'Remove | stop adapter'
-  ansible.builtin.command:
-    argv:
-      - 'wg-quick'
-      - 'down'
-      - '{{ path | basename | splitext | first }}'
+- name: '{{ "Remove | wg | stop " ~ adapter }}'
+  ansible.builtin.command: '{{ "wg-quick down " ~ adapter }}'
   changed_when: false
   failed_when: false
 
-- name: 'Remove | remove adapter config'
+- name: '{{ "Remove | filesystem | remove " ~ path }}'
   ansible.builtin.file:
     path: '{{ path }}'
     state: 'absent'

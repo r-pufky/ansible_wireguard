@@ -1,8 +1,8 @@
 ---
 - name: 'Converge'
   hosts: 'all'
-  gather_facts: true  # ansible_kernel
+  gather_facts: true  # ansible_facts['kernel'].
   tasks:
-    - name: 'Converge | apply r_pufky.deb.wireguard'
+    - name: 'Converge | role | r_pufky.deb.wireguard'
       ansible.builtin.include_role:
         name: 'r_pufky.deb.wireguard'

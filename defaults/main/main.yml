@@ -1,36 +1,61 @@
 ---
 ###############################################################################
-# Wireguard Service Configuration
+# Feature Flags
 ###############################################################################
-# See reference documentation for specific wireguard network configurations.
-# Management of routing table and firewall services should be applied before
-# this role (unless changes can be applied in standard wireguard adapter
-# configurations).
-#
-# Set repo_host_access_token if github API is rated limited. See
-# r_pufky.deb.repo.
-#
-# Reference:
-# * https://wireguard.com
-# * https://github.com/pirate/wireguard-docs
-# * https://www.procustodibus.com/blog/2021/05/wireguard-ufw/
-# * https://www.procustodibus.com/blog/2021/11/wireguard-nftables/
 
-# Is this role applied to a container?
+# 1. Is this role applied to a container?
 #
 # Decision: manual user setting - There is currently no good way to
 #     deterministically and consistently detect if a remote host is a
 #     container outside of common cases.
 #
 # Hosts marked as containers will automatically disable any sysctl changes:
-#   * wireguard_service_ipv4_forwarding_enable
-#   * wireguard_service_ipv6_forwarding_enable
+#   * wireguard_srv_ipv4_forwarding
+#   * wireguard_srv_ipv6_forwarding
 #
 # Special Case:
-#   * deb_container_enable=true forces wireguard_container_enable=true.
+#   * deb_flg_container=true forces wireguard_flg_container=true.
 #
 # Default: False.
-wireguard_container_enable: false
+wireguard_flg_container: false
+
+# 2. Enable wireguard-initramfs?
+#
+# Allows for encrypted disk unlocks during boot process using dropbear. Setup
+# after wireguard devices have been configured. See initramfs section.
+#
+# Default: False.
+wireguard_flg_initramfs: false
+
+###############################################################################
+# Service
+###############################################################################
+
+# Github access token.
+#
+# Unauthenticated (anonymous) API requests are heavily restricted to the sum
+# total of requests to github from a given IP. Use an access token if
+# receiving 403's.
+#
+# Classic Tokens:
+# * settings > developer settings > personal access tokens (classic)
+#   * notes: {LABEL APPROPRIATELY}
+#   * expiration: {CUSTOM}
+#   * scopes: NONE
+#
+# Fine-grained Tokens:
+# * settings > developer settings > personal access tokens (fine-grained)
+#   * token name: {LABEL APPROPRIATELY}
+#   * expiration: {CUSTOM}
+#   * description: {DESCRIPTIVE TEXT}
+#   * resource owner: {YOUR ACCOUNT}
+#   * repository access: Public Repositories (read-only)
+#
+# Default: '' (unauthenticated).
+#
+# Reference:
+# * https://docs.github.com/en/authentication
+wireguard_srv_token: ''
 
 # Enable IPv4 forwarding?
 #
@@ -38,7 +63,7 @@ wireguard_container_enable: false
 # configs allow them to do so.
 #
 # Default: False (disabled).
-wireguard_service_ipv4_forwarding_enable: false
+wireguard_srv_ipv4_forwarding: false
 
 # Enable IPv6 forwarding?
 #
@@ -46,7 +71,7 @@ wireguard_service_ipv4_forwarding_enable: false
 # configs allow them to do so.
 #
 # Default: False (disabled).
-wireguard_service_ipv6_forwarding_enable: false
+wireguard_srv_ipv6_forwarding: false
 
 # Force refresh adapters?
 #
@@ -55,4 +80,191 @@ wireguard_service_ipv6_forwarding_enable: false
 # CONNECTION. Useful for renaming or removing adapters.
 #
 # Default: False.
-wireguard_service_force_refresh_adapters: false
+wireguard_srv_force_refresh_adapters: false
+
+###############################################################################
+# Config
+###############################################################################
+# Store keys in group_vars so both client and server can be configured.
+#
+# Generate public/private key:
+#
+#   wg genkey | tee adapter.key | wg pubkey > adapter.pub
+#   wg genpsk > preshared.key
+#
+# Reference:
+# * https://manpages.debian.org/unstable/wireguard-tools/wg-quick.8.en.html
+# * https://manpages.debian.org/unstable/wireguard-tools/wg.8.en.html
+
+# Wireguard adapter configuration.
+#
+# wireguard_cfg_adapters:
+#     list of dicts - Wireguard adapters.
+#   - name: str - Wireguard interface adapter name ([a-zA-Z0-9_=+.-]{1,15}).
+#     state: str - Adapter install state.
+#         Values:
+#           present: Manage adapter config only.
+#           enabled: Manager adapter config and up adapter after changes.
+#          disabled: Down adapter and manager adapter config.
+#            absent: Down and remove adapter.
+#         Default: 'present'.
+#     private_key: str - Base64 encoded interface private key. Use 'wg genkey'.
+#     listen_port: int - Listening port.
+#         Values:
+#           0: Use random port (default).
+#         Default: 0 (random).
+#     fw_mark: str - Firewall mark for outgoing packets.
+#           Values:
+#             0x{HEX}: Use hexadecimal value instead of string value.
+#                   0: Disabled (default).
+#           Default: 0 (disabled).
+#     address: list of str - Interface addresses.
+#         Values:
+#           {CIDR}: IPv4/IPv6 CIDR notation.
+#           {IPv4}: IPv4.
+#           {IPv6}: IPv6.
+#     dns: list of str - Interface DNS servers.
+#         Values:
+#           {FQDN}: Fully qualified domain names.
+#           {HOST}: Partial domain name that can be resolved.
+#           {IPv4}: IPv4.
+#           {IPv6}: IPv6.
+#     mtu: int - MTU for wireguard packets.
+#         Values:
+#           0: Disabled (use automatic discovery).
+#         Default: 0 (use automatic discovery).
+#     table: str - Routing table to which routes are added.
+#         Values:
+#                off: Disables the creation of routes altogether.
+#               auto: Adds routes to the default table and enables special
+#                     handling of default routes (default).
+#            {TABLE}: Table ID to add routes to.
+#         Default: 'auto'.
+#     pre_up: list of str - Bash script snippet before setting up adapter;
+#           executed in order.
+#         Special Case:
+#           %i: Expanded to INTERFACE.
+#         Default: [] (no pre-up scripts).
+#     post_up: list of str - Bash script snippet after setting up adapter;
+#           executed in order.
+#         Special Case:
+#           %i: Expanded to INTERFACE.
+#         Default: [] (no post-up scripts).
+#     pre_down: list of str - Bash script snippet before turning down adapter;
+#           executed in order.
+#         Special Case:
+#           %i: Expanded to INTERFACE.
+#         Default: [] (no pre-down scripts).
+#     post_down: list of str - Bash script snippet before turning down adapter;
+#           executed in order.
+#         Special Case:
+#           %i: Expanded to INTERFACE.
+#         Default: [] (no pre-down scripts).
+#     save_config: bool - Overwrite interface config on shutdown?
+#         Default: False.
+#     peers:
+#         list of dicts - Wireguard adapter peers.
+#       - public_key: str - Base64 encoded peer public key. Use 'wg genkey'.
+#         preshared_key: str - Base64 preshared key. Use 'wg genpsk'.
+#             Default: '' (disabled).
+#         allowed_ips: list of str - Hosts to allow; must be defined otherwise
+#               all traffic is blocked.
+#             Values:
+#                    {CIDR}: IPv4/IPv6 CIDR notation.
+#                 0.0.0.0/0: Match all IPv4 addresses.
+#                      ::/0: Match all IPv6 addresses.
+#         endpoint: dict - Public peer endpoint.
+#           host: str - Host address.
+#               Values:
+#                 {FQDN}: Fully qualified domain names.
+#                 {HOST}: Partial domain name that can be resolved.
+#                 {IPv4}: IPv4.
+#                 {IPv6}: IPv6.
+#           port: int - Host port.
+#         persistent_keepalive: int - Keepalive interval in seconds.
+#           Values:
+#             65535: Max interval.
+#                 1: Min interval.
+#                 0: Disabled (default).
+#           Default: 0 (disabled).
+#
+# wireguard_cfg_adapters:  # example 'server' endpoint.
+#   - name: 'vpn'
+#     state: 'enabled'
+#     private_key: '{{ vault_wireguard_vpn_private_key }}'
+#     listen_port: 51820
+#     address:
+#       - '172.31.255.254/24'
+#     save_config: false
+#     peers:
+#       - public_key: '{{ vault_wireguard_client_public_key }}'
+#         preshared_key: '{{ vault_wireguard_clientvpn_preshared_key }}'
+#         allowed_ips:
+#           - '172.31.255.10/32'
+#         persistent_keepalive: 25
+#
+# wireguard_cfg_adapters:  # example 'client' endpoint.
+#   - name: 'vpn'
+#     state: 'enabled'
+#     private_key: '{{ vault_wireguard_client_private_key }}'
+#     address:
+#       - '172.31.255.10/24'
+#     save_config: false
+#     peers:
+#       - public_key: '{{ vault_wireguard_vpn_public_key }}'
+#         preshared_key: '{{ vault_wireguard_clientvpn_preshared_key }}'
+#         allowed_ips:
+#           - '172.31.255.254/32'
+#         endpoint:
+#           host: 'wg.example.com'
+#           port: 51820
+#         persistent_keepalive: 25
+#
+# Default: [].
+wireguard_cfg_adapters: []
+
+###############################################################################
+# Wireguard-initramfs (wireguard kernel init support) Configuration
+###############################################################################
+# Wireguard keys and network should be different from the wireguard network
+# used on boot, as /boot is generally unencrypted and should be considered
+# compromised/untrusted.
+#
+# Initramfs should be enabled in congruence with r_pufky.deb.dropbear.
+#
+# Reference:
+# * https://github.com/r-pufky/wireguard-initramfs
+
+# Adapter to use during initramfs.
+#
+# Use adapter from wireguard_cfg_adapters[].name.
+#
+# Default: 'initramfs'.
+wireguard_cfg_initramfs_adapter: 'initramfs'
+
+# Enable wg-quick for adapter management?
+#
+# wg is used by default and requires no additional dependencies, at the cost of
+# parsing the adapter configuration with a reduced set of options.
+#
+# Enabling will add wg-quick and bash to the initramfs package, enabling full
+# adapter configuration support at the cost of an additional 1.4M of space. See
+# references for configuration file differences.
+#
+# Highly recommend only enabling if basic wg configuration does not meet needs.
+#
+# Default: False.
+wireguard_cfg_initramfs_quick_enable: false
+
+# URL to send a web request to set the local datetime.
+#
+# Raspberry Pi's should enable this feature for wireguard-initramfs to work.
+#
+# Default: '' (disabled).
+wireguard_cfg_initramfs_datetime_url: ''
+
+# Persist (do not down) interface after initramfs exits? Default: False.
+wireguard_cfg_initramfs_persistent_enable: false
+
+# Enable debug logging (exposes key material)? Default: False.
+wireguard_cfg_initramfs_debug_enable: false

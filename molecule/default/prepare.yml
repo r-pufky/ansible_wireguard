@@ -4,63 +4,85 @@
   connection: local
   gather_facts: false
   tasks:
-    - name: 'Prepare | generate cache location'
-      ansible.builtin.set_fact:
-        _test_cache:
-          '{{ lookup("env", "MOLECULE_PROJECT_DIRECTORY") }}/molecule/cache'
+    - name: 'Prepare | import | role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
+          }}'
 
-    - name: 'Prepare | create cache'
+    - name: 'Prepare | cache'
       ansible.builtin.include_role:
-        name: 'r_pufky.lib.tests'
+        name: 'r_pufky.data.test'
         tasks_from: 'create_cache.yml'
       vars:
-        test_name: 'Prepare | create cache'
+        test_name: 'Prepare | cache'
 
-    - name: 'Prepare | check 2025-03-02'
-      ansible.builtin.stat:
-        path: '{{ _test_cache }}/2025-03-02.tar.gz'
-      register: _test_prepare
-
-    - name: 'Prepare | cache 2025-03-02'
-      when: not _test_prepare.stat.exists
-      ansible.builtin.get_url:
-        url: 'https://github.com/r-pufky/wireguard-initramfs/archive/refs/tags/2025-03-02.tar.gz'  # yamllint disable-line rule:line-length
-        dest: '{{ _test_cache }}/2025-03-02.tar.gz'
-        mode: '0640'
-      retries: 5
-      delay: 5
+    - name: '{{ "Prepare | cache | " ~ wireguard___initramfs._package }}'
+      ansible.builtin.include_role:
+        name: 'r_pufky.data.test'
+        tasks_from: 'cache_url.yml'
+      vars:
+        test_name:
+          '{{ "Prepare | cache | " ~ wireguard___initramfs._package }}'
+        test_dest: '{{ wireguard___initramfs._package }}'
+        test_url: '{{ wireguard___initramfs._url }}'
+        test_mode: '0640'
 
 - name: 'Prepare'
   hosts: 'all'
   gather_facts: false
   become: true
   tasks:
-    - name: 'Prepare | create package directory'
+    - name: 'Prepare | import | role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
+          }}'
+
+    - name: '{{ "Prepare | inject | " ~ wireguard___initramfs._package }}'
+      ansible.builtin.copy:
+        src: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
+            "/molecule/cache/" ~
+            wireguard___initramfs._package
+          }}'
+        dest: '{{ "/tmp/" ~ wireguard___initramfs._package }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+
+    - name: '{{ "Prepare | filesystem | create " ~ wireguard___app._etc_dir }}'
       ansible.builtin.file:
-        path: '/etc/wireguard'
+        path: '{{ wireguard___app._etc_dir }}'
         owner: 'root'
         group: 'root'
         mode: '0700'
         state: 'directory'
 
-    - name: 'Prepare | inject example_disabled.conf'
+    - name: '{{
+          "Prepare | inject | " ~ wireguard___app._etc_dir ~
+          "/example_disabled.conf"
+        }}'
       ansible.builtin.copy:
         src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
           }}'
-        dest: '/etc/wireguard/example_disabled.conf'
+        dest: '{{ wireguard___app._etc_dir ~ "/example_disabled.conf" }}'
         owner: 'root'
         group: 'root'
         mode: '0600'
 
-    - name: 'Prepare | inject example_absent.conf'
+    - name: '{{
+          "Prepare | inject | " ~ wireguard___app._etc_dir ~
+          "/example_absent.conf"
+        }}'
       ansible.builtin.copy:
         src: '{{
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
           }}'
-        dest: '/etc/wireguard/example_absent.conf'
+        dest: '{{ wireguard___app._etc_dir ~ "/example_absent.conf" }}'
         owner: 'root'
         group: 'root'
         mode: '0600'

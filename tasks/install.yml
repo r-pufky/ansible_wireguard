@@ -1,73 +1,103 @@
 ---
-# yamllint disable rule:line-length
 ###############################################################################
 # Wireguard Install
 ###############################################################################
-# Kernels at 5.6 or newer do not require kernel modules to be installed. LXC
-# containers need to be built specifically against PVE node headers. PVE
-# cluster nodes need to have PVE headers installed.
+# Manually download, extract, build, and install packages accordingly to Linux
+# FHS standards:
 #
-# Args:
-#   _wireguard_is_pve: ansible.builtin.stat - stat.exists if PVE node.
-#
-# Reference:
-# * https://r-pufky.github.io/docs/virtualization/hypervisors/pve/index.html#add-wireguard-kernel-support
-# * https://nixvsevil.com/posts/wireguard-in-proxmox-lxc/
-# yamllint enable rule:line-length
+# Type    | Perms               | Path
+# --------|---------------------|-------
+# Source  | 0755/0644 root:root | /opt/*
 
 - name: 'Install | packages'
   ansible.builtin.include_role:
     name: 'r_pufky.deb.apt'
   vars:
     apt_packages:
-      - '{{ wireguard_role_packages }}'
+      - '{{ wireguard___packages }}'
       - '{{
-          wireguard_role_initramfs_packages
-          if wireguard_initramfs_enable else
-          []
+          wireguard___initramfs_packages if wireguard_flg_initramfs else []
         }}'
     apt_package_update_cache: true
 
-# TODO(role): Update for PVE8.x+ and enable.
-# - name: 'Install | PVE'
-#   when: _wireguard_is_pve.stat.exists
-#   block:
-#     - name: 'Install | PVE | set wireguard kernel modules'
-#       ansible.builtin.copy:
-#         src: 'etc/modules-load.d/wireguard.conf'
-#         dest: '/etc/modules-load.d/wireguard.conf'
-#         owner: 'root'
-#         group: 'root'
-#         mode: '0644'
-#         force: true
-#
-#     - name: 'Install | PVE | load wireguard kernel module realtime'
-#       community.general.modprobe:
-#         name: 'wireguard'
-#         state: 'present'
-#       failed_when: false
-#       changed_when: false
+###############################################################################
+# wireguard-initramfs
+###############################################################################
 
 - name: 'Install | wireguard-initramfs'
-  when: wireguard_initramfs_enable
+  when: wireguard_flg_initramfs
   block:
-    - name: 'Install | wireguard-initramfs | {{ wireguard_initramfs_version }}'
-      ansible.builtin.include_role:
-        name: 'r_pufky.deb.repo'
-      vars:
-        repo_release_owner: '{{ wireguard_role_repo_release_owner }}'
-        repo_release_repo: '{{ wireguard_role_repo_release_repo }}'
-        repo_release_tag: '{{ wireguard_initramfs_version }}'
-        repo_release_asset: '{{ wireguard_role_repo_release_asset }}'
-        repo_extract_dir: '{{ wireguard_role_repo_extract_dir }}'
-        repo_extract_symlink: '{{ wireguard_role_repo_extract_symlink }}'
-        repo_extract_mode: 'a-st,o-rwx'
-        repo_extract_extra_opts: ['--strip-components=1']
+    # src_dir includes opt_dir.
+    - name: 'Install | filesystem | set system directories'
+      ansible.builtin.file:
+        path: '{{ wireguard___initramfs._src_dir }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+        state: 'directory'
 
-    - name: 'Install | wireguard-initramfs | make'
-      when: _repo_changed
+    - name: 'Install | filesystem | find previous installations'
+      ansible.builtin.find:
+        paths: '{{ wireguard___initramfs._src_dir }}'
+        file_type: 'directory'
+        recurse: false
+        excludes:
+          - '{{ wireguard___release._initramfs }}'
+      register: wireguard__cmd
+
+    - name: 'Install | filesystem | remove previous installations'
+      ansible.builtin.file:
+        path: '{{ item.path }}'
+        state: 'absent'
+      loop: '{{ wireguard__cmd.files }}'
+
+    - name: 'Install | filesystem | stage wireguard-initramfs'
+      when: not (url_inject_enable | default(false))
+      ansible.builtin.get_url:
+        url: '{{ wireguard___initramfs._url }}'
+        dest: '{{ "/tmp/" ~ wireguard___initramfs._package }}'
+        force: false
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+        headers:
+          Authorization: '{{ wireguard__srv._token | default(omit) }}'
+      register: wireguard__cmd
+      until: wireguard__cmd is succeeded
+
+    - name:
+        '{{ "Install | filesystem | set " ~ wireguard___initramfs._live_dir }}'
+      ansible.builtin.file:
+        path: '{{ wireguard___initramfs._live_dir }}'
+        owner: 'root'
+        group: 'root'
+        mode: '0755'
+        state: 'directory'
+
+    - name: 'Install | filesystem | unpack wireguard-initramfs'
+      ansible.builtin.unarchive:
+        creates: '{{ wireguard___initramfs._live_dir ~ "/Makefile" }}'
+        src: '{{ "/tmp/" ~ wireguard___initramfs._package }}'
+        remote_src: true
+        dest: '{{ wireguard___initramfs._live_dir }}'
+        owner: 'root'
+        group: 'root'
+        mode: 'a-st'
+        extra_opts: ['--strip-components=1']
+      register: wireguard__cmd
+
+    - name: 'Install | build | 🗘 wireguard-initramfs (<1 minute) 🗘'
+      when: wireguard__cmd.changed  # noqa: no-handler immediate.
+      ansible.builtin.debug:
+        msg: 'Building wireguard-initramfs (<1 minute).'
+
+    - name: '{{
+          "Install | build | wireguard-initramfs " ~
+          wireguard___initramfs._version
+        }}'
+      when: wireguard__cmd.changed  # noqa: no-handler immediate.
       ansible.builtin.command: 'make install'
       become: true
       args:
-        chdir: '/opt/wireguard-initramfs/wireguard-initramfs'
+        chdir: '{{ wireguard___initramfs._live_dir }}'
       changed_when: true

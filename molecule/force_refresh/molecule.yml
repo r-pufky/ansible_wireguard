@@ -6,6 +6,7 @@
 #
 # Tests:
 # * force refreshing adapters removes and re-creates adapters without failing.
+# * Wireguard deploys successfully within containers when enabled.
 
 dependency:
   name: 'galaxy'
@@ -22,17 +23,9 @@ provisioner:
   inventory:
     group_vars:
       all:
-        deb_container_enable: true
-        repo_testing_enable: true
-        repo_testing_versions:
-          - comment: 'default'
-            version: '2025-03-01'
-            asset: '{{
-                lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
-                "/molecule/files/2025-03-01.tar.gz"
-              }}'
-        wireguard_service_force_refresh_adapters: true
-        wireguard_adapters:
+        deb_flg_container: true  # Tests wireguard_flg_container as well.
+        wireguard_srv_force_refresh_adapters: true
+        wireguard_cfg_adapters:
           - name: 'example_present'
             state: 'present'
             private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
@@ -49,7 +42,7 @@ provisioner:
                   port: 51820
                 persistent_keepalive: 25
 platforms:
-  - name: 'wireguard-debian-13-force_refresh'
+  - name: 'wireguard-force-refresh'
     image: 'ghcr.io/hifis-net/debian-systemd:13'
     systemd: 'always'
     volumes:
@@ -58,21 +51,12 @@ platforms:
     pre_build_image: true
 verifier:
   name: 'ansible'
-lint: |
-  set -e
-  yamllint .
-  ansible-lint .
 scenario:
   test_sequence:
-    # - 'dependency'
-    # - 'cleanup'
     - 'destroy'
     - 'syntax'
     - 'create'
     - 'prepare'
     - 'converge'
-    # - 'idempotence'  # Files created, extracted, created, deleted.
-    # - 'side_effect'
     - 'verify'
-    # - 'cleanup'
     - 'destroy'

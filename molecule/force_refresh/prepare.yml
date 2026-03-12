@@ -3,18 +3,27 @@
   hosts: 'all'
   gather_facts: false
   tasks:
-    - name: 'Prepare | create package directory'
+    - name: 'Prepare | import | role variables'
+      ansible.builtin.include_vars:
+        file: '{{
+            lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
+          }}'
+
+    - name: '{{ "Prepare | filesystem | create " ~ wireguard___app._etc_dir }}'
       ansible.builtin.file:
-        path: '/etc/wireguard'
+        path: '{{ wireguard___app._etc_dir }}'
         owner: 'root'
         group: 'root'
         mode: '0700'
         state: 'directory'
 
-    - name: 'Prepare | inject original.conf'
+    - name: '{{
+          "Prepare | inject | " ~ wireguard___app._etc_dir ~
+          "/original.conf"
+        }}'
       ansible.builtin.copy:
         src: 'files/original.conf'
-        dest: '/etc/wireguard/example_present.conf'
+        dest: '{{ wireguard___app._etc_dir ~ "/original.conf" }}'
         owner: 'root'
         group: 'root'
         mode: '0600'

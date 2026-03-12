@@ -5,11 +5,11 @@
 # Reference:
 # * https://github.com/r-pufky/wireguard-initramfs
 
-- name: 'InitRAMFS | set wireguard-initramfs config'
-  notify: 'Handlers | update wireguard'
+- name: '{{ "InitRAMFS | filesystem | set " ~ wireguard___initramfs._cfg }}'
+  notify: 'Handlers | update | wireguard'
   ansible.builtin.template:
     src: 'initramfs.j2'
-    dest: '/etc/wireguard/initramfs'
+    dest: '{{ wireguard___initramfs._cfg }}'
     owner: 'root'
     group: 'root'
     mode: '0644'

@@ -21,14 +21,13 @@ dependency:
 driver:
   name: 'vagrant'
   provider:
-    name: 'virtualbox'
-    config_options:
-      ssh.keep_alive: true
-      ssh.remote_user: 'root'
-    options:
-      append_platform_to_hostname: false
+    name: 'libvirt'
+    type: 'libvirt'
 provisioner:
   name: 'ansible'
+  connection_options:
+    ansible_ssh_user: 'vagrant'
+    ansible_become: true
   config_options:
     defaults:
       interpreter_python: 'auto_silent'
@@ -36,19 +35,12 @@ provisioner:
   inventory:
     group_vars:
       all:
-        repo_testing_enable: true
-        repo_testing_versions:
-          - comment: 'default'
-            version: '2025-03-02'
-            asset: '{{
-                lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
-                "/molecule/cache/2025-03-02.tar.gz"
-              }}'
-        wireguard_initramfs_enable: true
-        wireguard_initramfs_adapter: 'example_enabled'
-        wireguard_service_ipv4_forwarding_enable: true
-        wireguard_service_ipv6_forwarding_enable: true
-        wireguard_adapters:
+        url_inject_enable: true
+        wireguard_flg_initramfs: true
+        wireguard_srv_ipv4_forwarding: true
+        wireguard_srv_ipv6_forwarding: true
+        wireguard_cfg_initramfs_adapter: 'example_enabled'
+        wireguard_cfg_adapters:
           - name: 'example_enabled'
             state: 'enabled'
             private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
@@ -100,31 +92,22 @@ provisioner:
             state: 'absent'
             private_key: 'iMgmYiJ5KykymUlWO/qtaC1azuFqH3zKSxs+dEgDRmI='
 platforms:
-  - name: 'wireguard-debian-13-vm-default'
-    box: 'inception-of-things/debian-trixie'
+  - name: 'wireguard-default'
+    box: 'debian/trixie64'
     memory: 4096
     cpus: 2
     interfaces:
-      - network_name: private_network  # network_name required
+      - network_name: 'private_network'
         auto_config: true
         type: 'dhcp'
 verifier:
   name: 'ansible'
-lint: |
-  set -e
-  yamllint .
-  ansible-lint .
 scenario:
   test_sequence:
-    # - 'dependency'
-    # - 'cleanup'
     - 'destroy'
     - 'syntax'
     - 'create'
     - 'prepare'
     - 'converge'
-    # - 'idempotence'  # Files created, extracted, created, deleted.
-    # - 'side_effect'
     - 'verify'
-    # - 'cleanup'
     - 'destroy'

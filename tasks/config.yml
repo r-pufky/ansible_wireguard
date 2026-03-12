@@ -2,27 +2,27 @@
 ###############################################################################
 # Configure Wireguard Connections
 ###############################################################################
-# Uses sysctl (e.g. the kernel namespace must be available).
+# Uses sysctl (e.g. kernel namespace must be available).
 
-- name: 'Config | force remove'
-  when: wireguard_service_force_refresh_adapters
-  block:
-    - name: 'Config | force remove | find existing adapter configs'
-      ansible.builtin.find:
-        paths: '/etc/wireguard'
-        patterns: '*.conf'
-      register: _wireguard_adapter_configs
+- name: '{{ "Config | filesystem | query " ~ wireguard___app._etc_dir }}'
+  when: wireguard_srv_force_refresh_adapters
+  ansible.builtin.find:
+    paths: '{{ wireguard___app._etc_dir }}'
+    patterns: '*.conf'
+  register: wireguard__adapter_configs
 
-    - name: 'Config | force remove | remove'
-      ansible.builtin.include_tasks: 'remove.yml'
-      vars:
-        path: '{{ item.path }}'
-      loop: '{{ _wireguard_adapter_configs.files }}'
-      loop_control:
-        label: '{{ item.path | basename }}'
+- name: 'Config | remove'
+  when: wireguard_srv_force_refresh_adapters
+  ansible.builtin.include_tasks: 'remove.yml'
+  vars:
+    path: '{{ item.path }}'
+    adapter: '{{ item.path | basename | splitext | first }}'
+  loop: '{{ wireguard__adapter_configs.files }}'
+  loop_control:
+    label: '{{ item.path | basename }}'
 
-- name: 'Config | set IP forwarding'
-  when: not wireguard_container_enable
+- name: 'Config | sysctl | set IP forwarding'
+  when: not wireguard_flg_container
   ansible.posix.sysctl:
     name: '{{ item.name }}'
     value: '{{ item.value }}'
@@ -30,17 +30,17 @@
     reload: true
   loop:
     - name: 'net.ipv4.conf.all.forwarding'
-      value: '{{ wireguard_service_ipv4_forwarding_enable | int }}'
+      value: '{{ wireguard__srv._ipv4_forwarding | int }}'
     - name: 'net.ipv4.conf.default.forwarding'
-      value: '{{ wireguard_service_ipv4_forwarding_enable | bool | int }}'
+      value: '{{ wireguard__srv._ipv4_forwarding | bool | int }}'
     - name: 'net.ipv6.conf.all.forwarding'
-      value: '{{ wireguard_service_ipv6_forwarding_enable | int }}'
+      value: '{{ wireguard__srv._ipv6_forwarding | int }}'
     - name: 'net.ipv6.conf.default.forwarding'
-      value: '{{ wireguard_service_ipv6_forwarding_enable | bool | int }}'
+      value: '{{ wireguard__srv._ipv6_forwarding | bool | int }}'
 
-- name: 'Config | configure wireguard adapters'
+- name: 'Config | adapter'
   ansible.builtin.include_tasks: 'adapter.yml'
-  loop: '{{ wireguard_adapters }}'
+  loop: '{{ wireguard_cfg_adapters }}'
   loop_control:
     loop_var: 'adapter'
     label: '{{ adapter.name }}'

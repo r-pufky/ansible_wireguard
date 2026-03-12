@@ -1,0 +1,50 @@
+---
+###############################################################################
+# Wireguard Role Options
+###############################################################################
+
+wireguard___release: "{{ {} | r_pufky.data.v3(
+
+    _date='2026-03-12',
+    _release='trixie',
+    _initramfs='2025-03-02',
+  ) }}"
+
+wireguard___app: "{{ {} | r_pufky.data.v3(
+
+    _etc_dir='/etc/wireguard',
+  ) }}"
+
+###############################################################################
+# APT Packages
+###############################################################################
+
+wireguard___packages:
+  - 'wireguard'
+  - 'wireguard-tools'
+
+wireguard___initramfs_packages:
+  - 'make'
+  - 'initramfs-tools'
+
+###############################################################################
+# Wireguard-initramfs
+###############################################################################
+# Reference:
+# * https://github.com/r-pufky/wireguard-initramfs/releases/latest
+
+wireguard___initramfs_repo_url:
+  'https://github.com/r-pufky/wireguard-initramfs/archive/refs/tags/'
+wireguard___initramfs_package:
+  '{{ wireguard___release._initramfs ~ ".tar.gz" }}'
+
+wireguard___initramfs: "{{ {} | r_pufky.data.v3(
+
+    _version=wireguard___release._initramfs,
+    _package=wireguard___initramfs_package,
+    _cfg=wireguard___app._etc_dir ~ '/initramfs',
+    _opt_dir='/opt/wireguard-initramfs',
+    _src_dir='/opt/wireguard-initramfs/src',
+    _live_dir='/opt/wireguard-initramfs/src/' ~ wireguard___release._initramfs,
+    _url=wireguard___initramfs_repo_url ~ wireguard___initramfs_package,
+  ) }}"

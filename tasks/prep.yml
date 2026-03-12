@@ -2,38 +2,68 @@
 ###############################################################################
 # Wireguard Prep
 ###############################################################################
-#
-# Generates:
-#   _wireguard_pve: ansible.builtin.stat - stat.exists if PVE node.
+# Kernels at 5.6 or newer do not require kernel modules to be installed. LXC
+# containers need to be built specifically against PVE node headers. PVE
+# cluster nodes need to have PVE headers installed.
 #
 # Reference:
-# *
+# * https://nixvsevil.com/posts/wireguard-in-proxmox-lxc/
 
-- name: 'Prep | assert kernel version 5.6+'
+- name: 'Prep | fact | force wireguard_flg_container=true (deb_flg_container)'
+  when: deb_flg_container | default(false)
+  ansible.builtin.set_fact:
+    wireguard_flg_container: true
+
+- name: 'Prep | fact | record start time'
+  ansible.builtin.set_fact:
+    wireguard__srv: "{{ {} | r_pufky.data.v3(
+
+        _token=wireguard_srv_token,
+        _ipv4_forwarding=wireguard_srv_ipv4_forwarding,
+        _ipv6_forwarding=wireguard_srv_ipv6_forwarding,
+        _force_refresh_adapters=wireguard_srv_force_refresh_adapters,
+      ) }}"
+    wireguard__cfg: "{{ {} | r_pufky.data.v3(
+
+        _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
+        _adapters=wireguard_cfg_adapters,
+        _initramfs_adapter=(
+          wireguard___app._etc_dir ~ '/' ~
+          wireguard_cfg_initramfs_adapter ~ '.conf'
+        ),
+        _initramfs_quick_enable=(
+          'y' if wireguard_cfg_initramfs_quick_enable else ''
+        ),
+        _initramfs_datetime_url=wireguard_cfg_initramfs_datetime_url,
+        _initramfs_persistent_enable=(
+          'y' if wireguard_cfg_initramfs_persistent_enable else ''
+        ),
+        _initramfs_debug_enable=(
+          'y' if wireguard_cfg_initramfs_debug_enable else ''
+        ),
+      ) }}"
+
+- name: 'Prep | assert | kernel version 5.6+'
   ansible.builtin.assert:
     quiet: true
     that:
-      - ansible_kernel is version("5.6", ">")
+      - ansible_facts['kernel'] is version("5.6", ">")
     fail_msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │             Only kernel versions 5.6+ are supported.              │
-      │                                                                   │
-      ╰───────────────────────────────────────────────────────────────────╯
 
-- name: 'Prep | query for PVE'
+      ✘ Only kernel versions 5.6+ are supported.
+
+      {{ ansible_facts['kernel'] }}
+
+- name: 'Prep | filesystem | query /usr/bin/pveversion'
   ansible.builtin.stat:
     path: '/usr/bin/pveversion'
-  register: _wireguard_is_pve
+  register: wireguard__is_pve
 
-- name: 'Prep | assert not PVE'
+- name: 'Prep | assert | proxmox not targeted'
   ansible.builtin.assert:
     quiet: true
     that:
-      - not _wireguard_is_pve.stat.exists
+      - not wireguard__is_pve.stat.exists
     fail_msg: |
-      ╭───────────────────────────────────────────────────────────────────╮
-      │                                                                   │
-      │       PVE cluster node deployments are currently disabled.        │
-      │                                                                   │
-      ╰───────────────────────────────────────────────────────────────────╯
+
+      ✘ PVE cluster node deployments are currently disabled.
