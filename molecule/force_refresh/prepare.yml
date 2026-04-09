@@ -9,21 +9,21 @@
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~ "/vars/main.yml"
           }}'
 
-    - name: '{{ "Prepare | filesystem | create " ~ wireguard___app._etc_dir }}'
+    - name: '{{ "Prepare | filesystem | create " ~ wireguard___app._etc_d }}'
       ansible.builtin.file:
-        path: '{{ wireguard___app._etc_dir }}'
+        path: '{{ wireguard___app._etc_d }}'
         owner: 'root'
         group: 'root'
         mode: '0700'
         state: 'directory'
 
     - name: '{{
-          "Prepare | inject | " ~ wireguard___app._etc_dir ~
+          "Prepare | inject | " ~ wireguard___app._etc_d ~
           "/original.conf"
         }}'
       ansible.builtin.copy:
         src: 'files/original.conf'
-        dest: '{{ wireguard___app._etc_dir ~ "/original.conf" }}'
+        dest: '{{ wireguard___app._etc_d ~ "/original.conf" }}'
         owner: 'root'
         group: 'root'
         mode: '0600'

@@ -12,7 +12,7 @@ wireguard___release: "{{ {} | r_pufky.data.v3(
 
 wireguard___app: "{{ {} | r_pufky.data.v3(
 
-    _etc_dir='/etc/wireguard',
+    _etc_d='/etc/wireguard',
   ) }}"
 
 ###############################################################################
@@ -42,9 +42,9 @@ wireguard___initramfs: "{{ {} | r_pufky.data.v3(
 
     _version=wireguard___release._initramfs,
     _package=wireguard___initramfs_package,
-    _cfg=wireguard___app._etc_dir ~ '/initramfs',
-    _opt_dir='/opt/wireguard-initramfs',
-    _src_dir='/opt/wireguard-initramfs/src',
-    _live_dir='/opt/wireguard-initramfs/src/' ~ wireguard___release._initramfs,
+    _cfg=wireguard___app._etc_d ~ '/initramfs',
+    _opt_d='/opt/wireguard-initramfs',
+    _src_d='/opt/wireguard-initramfs/src',
+    _live_d='/opt/wireguard-initramfs/src/' ~ wireguard___release._initramfs,
     _url=wireguard___initramfs_repo_url ~ wireguard___initramfs_package,
   ) }}"

@@ -31,7 +31,7 @@
 - name: 'Adapter | fact | parse adapter location'
   ansible.builtin.set_fact:
     wireguard__adapter_file:
-      '{{ wireguard___app._etc_dir ~ "/" ~ adapter.name ~ ".conf" }}'
+      '{{ wireguard___app._etc_d ~ "/" ~ adapter.name ~ ".conf" }}'
 
 - name: '{{ "Adapter | wg | stop " ~ adapter.name }}'
   when: adapter.state == 'disabled' or adapter.state == 'absent'

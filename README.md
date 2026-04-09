@@ -88,6 +88,12 @@ Configure [environment][a].
 molecule test --all
 ```
 
+Testing variables:
+
+  Variable            | type | Description
+ ---------------------|------|-------------
+  molecule_flg_inject | bool | Flag to inject files locally.
+
 ### [Releases][b]
 
   Release | Debian | Ansible | Notes

@@ -51,16 +51,16 @@
         group: 'root'
         mode: '0644'
 
-    - name: '{{ "Prepare | filesystem | create " ~ wireguard___app._etc_dir }}'
+    - name: '{{ "Prepare | filesystem | create " ~ wireguard___app._etc_d }}'
       ansible.builtin.file:
-        path: '{{ wireguard___app._etc_dir }}'
+        path: '{{ wireguard___app._etc_d }}'
         owner: 'root'
         group: 'root'
         mode: '0700'
         state: 'directory'
 
     - name: '{{
-          "Prepare | inject | " ~ wireguard___app._etc_dir ~
+          "Prepare | inject | " ~ wireguard___app._etc_d ~
           "/example_disabled.conf"
         }}'
       ansible.builtin.copy:
@@ -68,13 +68,13 @@
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
           }}'
-        dest: '{{ wireguard___app._etc_dir ~ "/example_disabled.conf" }}'
+        dest: '{{ wireguard___app._etc_d ~ "/example_disabled.conf" }}'
         owner: 'root'
         group: 'root'
         mode: '0600'
 
     - name: '{{
-          "Prepare | inject | " ~ wireguard___app._etc_dir ~
+          "Prepare | inject | " ~ wireguard___app._etc_d ~
           "/example_absent.conf"
         }}'
       ansible.builtin.copy:
@@ -82,7 +82,7 @@
             lookup("env", "MOLECULE_PROJECT_DIRECTORY") ~
             "/molecule/files/adapter.conf"
           }}'
-        dest: '{{ wireguard___app._etc_dir ~ "/example_absent.conf" }}'
+        dest: '{{ wireguard___app._etc_d ~ "/example_absent.conf" }}'
         owner: 'root'
         group: 'root'
         mode: '0600'

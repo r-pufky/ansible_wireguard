@@ -31,7 +31,7 @@ wireguard_flg_initramfs: false
 # Service
 ###############################################################################
 
-# Github access token.
+# Github access token (wireguard-initramfs).
 #
 # Unauthenticated (anonymous) API requests are heavily restricted to the sum
 # total of requests to github from a given IP. Use an access token if

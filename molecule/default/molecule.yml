@@ -35,7 +35,7 @@ provisioner:
   inventory:
     group_vars:
       all:
-        url_inject_enable: true
+        molecule_flg_inject: true
         wireguard_flg_initramfs: true
         wireguard_srv_ipv4_forwarding: true
         wireguard_srv_ipv6_forwarding: true

@@ -4,10 +4,10 @@
 ###############################################################################
 # Uses sysctl (e.g. kernel namespace must be available).
 
-- name: '{{ "Config | filesystem | query " ~ wireguard___app._etc_dir }}'
+- name: '{{ "Config | filesystem | query " ~ wireguard___app._etc_d }}'
   when: wireguard_srv_force_refresh_adapters
   ansible.builtin.find:
-    paths: '{{ wireguard___app._etc_dir }}'
+    paths: '{{ wireguard___app._etc_d }}'
     patterns: '*.conf'
   register: wireguard__adapter_configs
 

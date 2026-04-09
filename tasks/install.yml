@@ -18,7 +18,7 @@
       - '{{
           wireguard___initramfs_packages if wireguard_flg_initramfs else []
         }}'
-    apt_package_update_cache: true
+    apt_srv_package_update_cache: true
 
 ###############################################################################
 # wireguard-initramfs
@@ -30,7 +30,7 @@
     # src_dir includes opt_dir.
     - name: 'Install | filesystem | set system directories'
       ansible.builtin.file:
-        path: '{{ wireguard___initramfs._src_dir }}'
+        path: '{{ wireguard___initramfs._src_d }}'
         owner: 'root'
         group: 'root'
         mode: '0755'
@@ -38,7 +38,7 @@
 
     - name: 'Install | filesystem | find previous installations'
       ansible.builtin.find:
-        paths: '{{ wireguard___initramfs._src_dir }}'
+        paths: '{{ wireguard___initramfs._src_d }}'
         file_type: 'directory'
         recurse: false
         excludes:
@@ -50,9 +50,11 @@
         path: '{{ item.path }}'
         state: 'absent'
       loop: '{{ wireguard__cmd.files }}'
+      loop_control:
+        label: '{{ item.path }}'
 
     - name: 'Install | filesystem | stage wireguard-initramfs'
-      when: not (url_inject_enable | default(false))
+      when: not (molecule_flg_inject | default(false))
       ansible.builtin.get_url:
         url: '{{ wireguard___initramfs._url }}'
         dest: '{{ "/tmp/" ~ wireguard___initramfs._package }}'
@@ -66,9 +68,9 @@
       until: wireguard__cmd is succeeded
 
     - name:
-        '{{ "Install | filesystem | set " ~ wireguard___initramfs._live_dir }}'
+        '{{ "Install | filesystem | set " ~ wireguard___initramfs._live_d }}'
       ansible.builtin.file:
-        path: '{{ wireguard___initramfs._live_dir }}'
+        path: '{{ wireguard___initramfs._live_d }}'
         owner: 'root'
         group: 'root'
         mode: '0755'
@@ -76,10 +78,10 @@
 
     - name: 'Install | filesystem | unpack wireguard-initramfs'
       ansible.builtin.unarchive:
-        creates: '{{ wireguard___initramfs._live_dir ~ "/Makefile" }}'
+        creates: '{{ wireguard___initramfs._live_d ~ "/Makefile" }}'
         src: '{{ "/tmp/" ~ wireguard___initramfs._package }}'
         remote_src: true
-        dest: '{{ wireguard___initramfs._live_dir }}'
+        dest: '{{ wireguard___initramfs._live_d }}'
         owner: 'root'
         group: 'root'
         mode: 'a-st'
@@ -99,5 +101,5 @@
       ansible.builtin.command: 'make install'
       become: true
       args:
-        chdir: '{{ wireguard___initramfs._live_dir }}'
+        chdir: '{{ wireguard___initramfs._live_d }}'
       changed_when: true

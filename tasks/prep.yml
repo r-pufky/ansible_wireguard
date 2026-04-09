@@ -28,7 +28,7 @@
         _start=now(utc=True, fmt='%Y-%m-%dT%H%M%S'),
         _adapters=wireguard_cfg_adapters,
         _initramfs_adapter=(
-          wireguard___app._etc_dir ~ '/' ~
+          wireguard___app._etc_d ~ '/' ~
           wireguard_cfg_initramfs_adapter ~ '.conf'
         ),
         _initramfs_quick_enable=(
