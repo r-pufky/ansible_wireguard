@@ -35,6 +35,7 @@ provisioner:
   inventory:
     group_vars:
       all:
+        apt_srv_auto_grub_boot: true  # Testing VM only.
         molecule_flg_inject: true
         wireguard_flg_initramfs: true
         wireguard_srv_ipv4_forwarding: true
